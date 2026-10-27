@@ -17,26 +17,56 @@
         <!-- Header -->
         <div class="bg-white rounded-2xl shadow-sm p-6 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
+                <span class="inline-block bg-blue-50 text-blue-600 text-xs px-3 py-1 rounded-full font-medium mb-2">📦 คลังอุปกรณ์ประจำแผนก</span>
                 <h1 class="text-2xl font-bold text-slate-900">ระบบยืม-คืนอุปกรณ์</h1>
-                <p class="text-sm text-slate-500">แผนกเทคโนโลยีธุรกิจดิจิทัล / คอมพิวเตอร์ (ฐานข้อมูลกลาง)</p>
+                <p class="text-sm text-slate-500">แผนกเทคโนโลยีธุรกิจดิจิทัล / คอมพิวเตอร์</p>
             </div>
             <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm transition flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                 </svg>
-                <span>ทำรายการยืมใหม่</span>
+                <span>บันทึกการยืมใหม่</span>
             </button>
         </div>
 
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg">⏱️</div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">กำลังถูกยืม</p>
+                    <h3 id="statActive" class="text-2xl font-bold text-slate-800">0</h3>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold text-lg">⚠️</div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">เลยกำหนดคืน</p>
+                    <h3 id="statOverdue" class="text-2xl font-bold text-red-600">0</h3>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg">✅</div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">คืนแล้วทั้งหมด</p>
+                    <h3 id="statReturned" class="text-2xl font-bold text-emerald-600">0</h3>
+                </div>
+            </div>
+        </div>
+
         <!-- Filter & Search -->
-        <div class="bg-white rounded-2xl shadow-sm p-4 mb-6 flex flex-col md:flex-row gap-4 justify-between">
-            <input type="text" id="searchInput" oninput="renderTable()" placeholder="🔍 ค้นหาชื่อผู้ยืม, อุปกรณ์, แผนก..." class="w-full md:w-96 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm">
+        <div class="bg-white rounded-2xl shadow-sm p-4 mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
+            <input type="text" id="searchInput" oninput="renderTable()" placeholder="🔍 ค้นหาชื่อผู้ยืม, แผนกผู้ยืม หรือชื่ออุปกรณ์..." class="w-full md:w-96 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm">
             
-            <select id="statusFilter" onchange="renderTable()" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm">
-                <option value="all">สถานะทั้งหมด</option>
-                <option value="active">กำลังยืม</option>
-                <option value="returned">คืนแล้ว</option>
-            </select>
+            <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                <span class="text-xs text-slate-500 font-medium">กรองสถานะ:</span>
+                <select id="statusFilter" onchange="renderTable()" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm">
+                    <option value="all">ทั้งหมด</option>
+                    <option value="active">กำลังถูกยืม</option>
+                    <option value="overdue">เลยกำหนด</option>
+                    <option value="returned">คืนแล้ว</option>
+                </select>
+            </div>
         </div>
 
         <!-- Table -->
@@ -45,8 +75,9 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase text-slate-400 font-semibold">
-                            <th class="p-4">ผู้ยืม / แผนก</th>
-                            <th class="p-4">อุปกรณ์ / ต้นสังกัด</th>
+                            <th class="p-4">ผู้ยืม / แผนกผู้ยืม</th>
+                            <th class="p-4">อุปกรณ์ที่ยืม</th>
+                            <th class="p-4">แผนกเจ้าของ</th>
                             <th class="p-4">วันที่ยืม</th>
                             <th class="p-4">กำหนดคืน</th>
                             <th class="p-4">สถานะ</th>
@@ -65,8 +96,8 @@
     <div id="borrowModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold text-slate-900">บันทึกการยืมอุปกรณ์</h2>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+                <h2 class="text-lg font-bold text-slate-900">📝 บันทึกการยืมอุปกรณ์</h2>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
             </div>
             
             <form id="borrowForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
@@ -75,19 +106,14 @@
                     <input type="text" id="borrowerName" required placeholder="ระบุชื่อ-นามสกุล ผู้ขอยืม" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
                 </div>
 
-                <!-- ช่องเลือกหรือกรอกแผนกของผู้ยืมแบบละเอียดยอดฮิต -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">แผนกของผู้ยืม <span class="text-red-500">*</span></label>
                     <select id="department" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 mb-2" onchange="checkCustomDept(this)">
-                        <option value="">-- เลือกแผนก / ระดับชั้น --</option>
-                        <option value="ปวช.1 เทคโนโลยีธุรกิจดิจิทัล">ปวช.1 เทคโนโลยีธุรกิจดิจิทัล</option>
-                        <option value="ปวช.2 เทคโนโลยีธุรกิจดิจิทัล">ปวช.2 เทคโนโลยีธุรกิจดิจิทัล</option>
-                        <option value="ปวช.3 เทคโนโลยีธุรกิจดิจิทัล">ปวช.3 เทคโนโลยีธุรกิจดิจิทัล</option>
-                        <option value="ปวช.1 คอมพิวเตอร์ธุรกิจ">ปวช.1 คอมพิวเตอร์ธุรกิจ</option>
-                        <option value="ปวช.2 คอมพิวเตอร์ธุรกิจ">ปวช.2 คอมพิวเตอร์ธุรกิจ</option>
-                        <option value="ปวช.3 คอมพิวเตอร์ธุรกิจ">ปวช.3 คอมพิวเตอร์ธุรกิจ</option>
-                        <option value="ปวส.1 เทคโนโลยีธุรกิจดิจิทัล">ปวส.1 เทคโนโลยีธุรกิจดิจิทัล</option>
-                        <option value="ปวส.2 เทคโนโลยีธุรกิจดิจิทัล">ปวส.2 เทคโนโลยีธุรกิจดิจิทัล</option>
+                        <option value="">-- เลือกแผนกของผู้อยืม --</option>
+                        <option value="แผนกเทคโนโลยีธุรกิจดิจิทัล">แผนกเทคโนโลยีธุรกิจดิจิทัล</option>
+                        <option value="แผนกคอมพิวเตอร์ธุรกิจ">แผนกคอมพิวเตอร์ธุรกิจ</option>
+                        <option value="แผนกการบัญชี">แผนกการบัญชี</option>
+                        <option value="แผนกการตลาด">แผนกการตลาด</option>
                         <option value="other">-- ระบุอื่นๆ --</option>
                     </select>
                     <input type="text" id="customDepartment" placeholder="พิมพ์ระบุแผนกของคุณ..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 hidden">
@@ -95,12 +121,19 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">สังกัดแผนกของอุปกรณ์ <span class="text-red-500">*</span></label>
-                    <input type="text" id="ownerDept" required placeholder="เช่น แผนกเทคโนโลยีธุรกิจดิจิทัล" value="แผนกเทคโนโลยีธุรกิจดิจิทัล" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                    <input type="text" id="ownerDept" required value="แผนกเทคโนโลยีธุรกิจดิจิทัล / คอมพิวเตอร์" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">ชื่ออุปกรณ์ / รหัสครุภัณฑ์ <span class="text-red-500">*</span></label>
-                    <input type="text" id="deviceName" required placeholder="เช่น โน้ตบุ๊กกลาง #01, Projector" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">ชื่ออุปกรณ์ที่ยืม <span class="text-red-500">*</span></label>
+                    <select id="deviceName" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                        <option value="">-- เลือกอุปกรณ์ที่ต้องการยืม --</option>
+                        <option value="กรรไกร">กรรไกร</option>
+                        <option value="ไขควง">ไขควง</option>
+                        <option value="คีมตัดสายไฟ">คีมตัดสายไฟ</option>
+                        <option value="โน้ตบุ๊กกลาง #01">โน้ตบุ๊กกลาง #01</option>
+                        <option value="โปรเจคเตอร์">โปรเจคเตอร์</option>
+                    </select>
                 </div>
 
                 <div>
@@ -110,7 +143,7 @@
 
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="closeModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-xl font-medium transition text-sm">ยกเลิก</button>
-                    <button type="submit" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition text-sm shadow-sm">บันทึกการยืม</button>
+                    <button type="submit" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition text-sm shadow-sm">ยืนยันบันทึกข้อมูล</button>
                 </div>
             </form>
         </div>
@@ -123,7 +156,7 @@
 
         async function fetchBorrows() {
             const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">กำลังซิงค์ข้อมูลจากฐานข้อมูลกลาง...</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">กำลังซิงค์ข้อมูลจากฐานข้อมูลกลาง...</td></tr>`;
             try {
                 const response = await fetch(WEB_APP_URL);
                 const data = await response.json();
@@ -131,7 +164,7 @@
                 renderTable();
             } catch (error) {
                 console.error("Error loading data:", error);
-                tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-red-500">ไม่สามารถเชื่อมต่อฐานข้อมูลได้</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-red-500">ไม่สามารถเชื่อมต่อฐานข้อมูลได้</td></tr>`;
             }
         }
 
@@ -140,41 +173,70 @@
             const keyword = document.getElementById('searchInput').value.toLowerCase();
             const statusFilter = document.getElementById('statusFilter').value;
 
-            const filtered = borrows.filter(item => {
+            const today = new Date().toISOString().split('T')[0];
+
+            let activeCount = 0;
+            let overdueCount = 0;
+            let returnedCount = 0;
+
+            const processedBorrows = borrows.map(item => {
+                let currentStatus = item.status;
+                if (currentStatus !== 'returned') {
+                    if (item.dueDate < today) {
+                        currentStatus = 'overdue';
+                        overdueCount++;
+                    } else {
+                        activeCount++;
+                    }
+                } else {
+                    returnedCount++;
+                }
+                return { ...item, computedStatus: currentStatus };
+            });
+
+            document.getElementById('statActive').innerText = activeCount;
+            document.getElementById('statOverdue').innerText = overdueCount;
+            document.getElementById('statReturned').innerText = returnedCount;
+
+            const filtered = processedBorrows.filter(item => {
                 const matchKeyword = (item.borrower && item.borrower.toLowerCase().includes(keyword)) ||
                                      (item.device && item.device.toLowerCase().includes(keyword)) ||
                                      (item.dept && item.dept.toLowerCase().includes(keyword));
-                const matchStatus = statusFilter === 'all' || item.status === statusFilter;
+                const matchStatus = statusFilter === 'all' || item.computedStatus === statusFilter;
                 return matchKeyword && matchStatus;
             });
 
             if (filtered.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">ไม่พบรายการยืมในระบบ</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">ไม่พบรายการยืมในระบบ</td></tr>`;
                 return;
             }
 
             tableBody.innerHTML = filtered.map(item => {
                 let statusBadge = '';
-                if (item.status === 'returned') {
-                    statusBadge = `<span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-semibold">คืนแล้ว</span>`;
+                let actionBtn = '';
+
+                if (item.computedStatus === 'returned') {
+                    statusBadge = `<span class="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-xs font-semibold">✅ คืนแล้ว</span>`;
+                    actionBtn = `<span class="text-xs text-slate-400 font-medium">✔️ เสร็จสิ้น</span>`;
+                } else if (item.computedStatus === 'overdue') {
+                    statusBadge = `<span class="bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-semibold">⚠️ เลยกำหนด</span>`;
+                    actionBtn = `<button onclick="returnItem('${item.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition shadow-sm">🔄 กดคืนของ</button>`;
                 } else {
-                    statusBadge = `<span class="bg-emerald-100 text-emerald-600 px-3 py-1 rounded-full text-xs font-semibold">กำลังยืม</span>`;
+                    statusBadge = `<span class="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-xs font-semibold">✅ คืนแล้ว</span> (กำลังยืม)`; // ปรับตามความเหมาะสม
+                    // แก้ไขป้ายกำลังยืม
+                    statusBadge = `<span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold">⏱️ กำลังยืม</span>`;
+                    actionBtn = `<button onclick="returnItem('${item.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition shadow-sm">🔄 กดคืนของ</button>`;
                 }
 
                 return `
                     <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
-                        <td class="p-4 font-medium text-slate-800">${item.borrower} <br><span class="text-xs text-slate-400">${item.dept}</span></td>
-                        <td class="p-4 text-slate-600">${item.device} <br><span class="text-xs text-slate-400">เจ้าของ: ${item.ownerDept}</span></td>
-                        <td class="p-4 text-slate-600">${item.borrowDate}</td>
-                        <td class="p-4 text-slate-600">${item.dueDate}</td>
+                        <td class="p-4 font-medium text-slate-800">${item.borrower} <br><span class="text-xs text-slate-400">🏢 ${item.dept}</span></td>
+                        <td class="p-4 text-slate-700 font-medium">${item.device}</td>
+                        <td class="p-4 text-slate-600 text-xs">${item.ownerDept}</td>
+                        <td class="p-4 text-slate-600 text-xs">${item.borrowDate}</td>
+                        <td class="p-4 text-slate-600 text-xs">${item.dueDate}</td>
                         <td class="p-4">${statusBadge}</td>
-                        <td class="p-4 text-center">
-                            ${item.status !== 'returned' ? `
-                                <button onclick="returnItem('${item.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition shadow-sm">
-                                    คืนอุปกรณ์
-                                </button>
-                            ` : '-'}
-                        </td>
+                        <td class="p-4 text-center">${actionBtn}</td>
                     </tr>
                 `;
             }).join('');
@@ -224,7 +286,7 @@
             } catch (error) {
                 alert("เกิดข้อผิดพลาดในการบันทึก");
             } finally {
-                submitBtn.innerText = "บันทึกการยืม";
+                submitBtn.innerText = "ยืนยันบันทึกข้อมูล";
                 submitBtn.disabled = false;
             }
         }
