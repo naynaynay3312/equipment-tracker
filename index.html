@@ -96,24 +96,25 @@
     <div id="borrowModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold text-slate-900">📝 บันทึกการยืมอุปกรณ์</h2>
+                <h2 class="text-lg font-bold text-slate-900">บันทึกการยืมอุปกรณ์</h2>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
             </div>
             
             <form id="borrowForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">ชื่อผู้ยืม <span class="text-red-500">*</span></label>
-                    <input type="text" id="borrowerName" required placeholder="ระบุชื่อ-นามสกุล ผู้ขอยืม" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                    <input type="text" id="borrowerName" required placeholder="นาย นครินทร์ หาญธัญกรรม" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">แผนกของผู้ยืม <span class="text-red-500">*</span></label>
                     <select id="department" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 mb-2" onchange="checkCustomDept(this)">
-                        <option value="">-- เลือกแผนกของผู้อยืม --</option>
-                        <option value="แผนกเทคโนโลยีธุรกิจดิจิทัล">แผนกเทคโนโลยีธุรกิจดิจิทัล</option>
-                        <option value="แผนกคอมพิวเตอร์ธุรกิจ">แผนกคอมพิวเตอร์ธุรกิจ</option>
-                        <option value="แผนกการบัญชี">แผนกการบัญชี</option>
-                        <option value="แผนกการตลาด">แผนกการตลาด</option>
+                        <option value="">-- เลือกแผนกของผุ้ยืม --</option>
+                        <option value="ปวช.3 เทคโนโลยีธุรกิจดิจิทัล">ปวช.3 เทคโนโลยีธุรกิจดิจิทัล</option>
+                        <option value="ปวช.2 เทคโนโลยีธุรกิจดิจิทัล">ปวช.2 เทคโนโลยีธุรกิจดิจิทัล</option>
+                        <option value="ปวช.1 เทคโนโลยีธุรกิจดิจิทัล">ปวช.1 เทคโนโลยีธุรกิจดิจิทัล</option>
+                        <option value="ปวส.1 เทคโนโลยีธุรกิจดิจิทัล">ปวส.1 เทคโนโลยีธุรกิจดิจิทัล</option>
+                        <option value="ปวส.2 เทคโนโลยีธุรกิจดิจิทัล">ปวส.2 เทคโนโลยีธุรกิจดิจิทัล</option>
                         <option value="other">-- ระบุอื่นๆ --</option>
                     </select>
                     <input type="text" id="customDepartment" placeholder="พิมพ์ระบุแผนกของคุณ..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 hidden">
@@ -125,15 +126,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">ชื่ออุปกรณ์ที่ยืม <span class="text-red-500">*</span></label>
-                    <select id="deviceName" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
-                        <option value="">-- เลือกอุปกรณ์ที่ต้องการยืม --</option>
-                        <option value="กรรไกร">กรรไกร</option>
-                        <option value="ไขควง">ไขควง</option>
-                        <option value="คีมตัดสายไฟ">คีมตัดสายไฟ</option>
-                        <option value="โน้ตบุ๊กกลาง #01">โน้ตบุ๊กกลาง #01</option>
-                        <option value="โปรเจคเตอร์">โปรเจคเตอร์</option>
-                    </select>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">ชื่ออุปกรณ์ / รหัสครุภัณฑ์ <span class="text-red-500">*</span></label>
+                    <input type="text" id="deviceName" required placeholder="เช่น โน้ตบุ๊กกลาง #01, Projector, กรรไกร" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div>
@@ -143,7 +137,7 @@
 
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="closeModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-xl font-medium transition text-sm">ยกเลิก</button>
-                    <button type="submit" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition text-sm shadow-sm">ยืนยันบันทึกข้อมูล</button>
+                    <button type="submit" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition text-sm shadow-sm">บันทึกการยืม</button>
                 </div>
             </form>
         </div>
@@ -182,7 +176,7 @@
             const processedBorrows = borrows.map(item => {
                 let currentStatus = item.status;
                 if (currentStatus !== 'returned') {
-                    if (item.dueDate < today) {
+                    if (item.dueDate && item.dueDate < today) {
                         currentStatus = 'overdue';
                         overdueCount++;
                     } else {
@@ -222,19 +216,17 @@
                     statusBadge = `<span class="bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-semibold">⚠️ เลยกำหนด</span>`;
                     actionBtn = `<button onclick="returnItem('${item.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition shadow-sm">🔄 กดคืนของ</button>`;
                 } else {
-                    statusBadge = `<span class="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-xs font-semibold">✅ คืนแล้ว</span> (กำลังยืม)`; // ปรับตามความเหมาะสม
-                    // แก้ไขป้ายกำลังยืม
-                    statusBadge = `<span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold">⏱️ กำลังยืม</span>`;
+                    statusBadge = `<span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold">⏱️ กำลังถูกยืม</span>`;
                     actionBtn = `<button onclick="returnItem('${item.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition shadow-sm">🔄 กดคืนของ</button>`;
                 }
 
                 return `
                     <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
-                        <td class="p-4 font-medium text-slate-800">${item.borrower} <br><span class="text-xs text-slate-400">🏢 ${item.dept}</span></td>
-                        <td class="p-4 text-slate-700 font-medium">${item.device}</td>
-                        <td class="p-4 text-slate-600 text-xs">${item.ownerDept}</td>
-                        <td class="p-4 text-slate-600 text-xs">${item.borrowDate}</td>
-                        <td class="p-4 text-slate-600 text-xs">${item.dueDate}</td>
+                        <td class="p-4 font-medium text-slate-800">${item.borrower || ''} <br><span class="text-xs text-slate-400">🏢 ${item.dept || ''}</span></td>
+                        <td class="p-4 text-slate-700 font-medium">${item.device || ''}</td>
+                        <td class="p-4 text-slate-600 text-xs">${item.ownerDept || ''}</td>
+                        <td class="p-4 text-slate-600 text-xs">${item.borrowDate || ''}</td>
+                        <td class="p-4 text-slate-600 text-xs">${item.dueDate || ''}</td>
                         <td class="p-4">${statusBadge}</td>
                         <td class="p-4 text-center">${actionBtn}</td>
                     </tr>
@@ -286,7 +278,7 @@
             } catch (error) {
                 alert("เกิดข้อผิดพลาดในการบันทึก");
             } finally {
-                submitBtn.innerText = "ยืนยันบันทึกข้อมูล";
+                submitBtn.innerText = "บันทึกการยืม";
                 submitBtn.disabled = false;
             }
         }
