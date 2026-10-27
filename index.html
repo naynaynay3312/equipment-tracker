@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบยืม-คืนอุปกรณ์ แผนกเทคโนโลยีธุรกิจดิจิทัล / คอมพิวเตอร์</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome สำหรับไอคอน -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-200 font-sans text-slate-800 min-h-screen py-6 px-4">
+
+    <div class="max-w-6xl mx-auto space-y-6">
+        <!-- Header Section -->
+        <header class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-md border-2 border-slate-300">
+            <div>
+                <div class="flex items-center gap-2 text-xs font-bold text-blue-700 bg-blue-100 border border-blue-300 px-3 py-1 rounded-full w-fit mb-2">
+                    <i class="fa-solid fa-laptop-code"></i> คลังอุปกรณ์ประจำแผนก
+                </div>
+                <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 flex items-center gap-3">
+                    <i class="fa-solid fa-boxes-stacked text-blue-600"></i> ระบบยืม-คืนอุปกรณ์
+                </h1>
+                <p class="text-slate-600 text-sm mt-1 font-medium">แผนกเทคโนโลยีธุรกิจดิจิทัล / คอมพิวเตอร์</p>
+            </div>
+            <button onclick="openModal()" class="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg hover:shadow-blue-200 flex items-center gap-2 border-2 border-blue-700">
+                <i class="fa-solid fa-plus-circle text-lg"></i> บันทึกการยืมใหม่
+            </button>
+        </header>
+
+        <!-- Dashboard Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-white p-5 rounded-2xl shadow-md border-2 border-slate-300 flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-blue-100 border border-blue-300 text-blue-700 flex items-center justify-center text-2xl shadow-inner">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wide">กำลังถูกยืม</p>
+                    <h3 id="statActive" class="text-3xl font-black text-slate-800">0</h3>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-md border-2 border-slate-300 flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-red-100 border border-red-300 text-red-600 flex items-center justify-center text-2xl shadow-inner">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wide">เลยกำหนดคืน</p>
+                    <h3 id="statOverdue" class="text-3xl font-black text-red-600">0</h3>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-md border-2 border-slate-300 flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-green-100 border border-green-300 text-green-700 flex items-center justify-center text-2xl shadow-inner">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wide">คืนแล้วทั้งหมด</p>
+                    <h3 id="statReturned" class="text-3xl font-black text-slate-800">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search & Table Section -->
+        <div class="bg-white rounded-2xl shadow-md border-2 border-slate-300 overflow-hidden">
+            <!-- Table Controls Header -->
+            <div class="p-5 bg-slate-100 border-b-2 border-slate-300 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="relative w-full sm:w-96">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
+                    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="ค้นหาชื่อผู้ยืม, แผนกผู้ยืม หรือชื่ออุปกรณ์..." class="w-full pl-11 pr-4 py-2.5 bg-white border-2 border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-700 shadow-sm">
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <span class="text-xs font-bold text-slate-500 uppercase">กรองสถานะ:</span>
+                    <select id="statusFilter" onchange="filterTable()" class="bg-white border-2 border-slate-300 px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-slate-700 shadow-sm">
+                        <option value="all">ทั้งหมด</option>
+                        <option value="active">กำลังยืม</option>
+                        <option value="overdue">เลยกำหนด</option>
+                        <option value="returned">คืนแล้ว</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-200 border-b-2 border-slate-300 text-slate-700 text-xs font-bold uppercase tracking-wider">
+                            <th class="p-4 border-r border-slate-300">ผู้ยืม / แผนกผู้ยืม</th>
+                            <th class="p-4 border-r border-slate-300">อุปกรณ์ที่ยืม</th>
+                            <th class="p-4 border-r border-slate-300">แผนกเจ้าของของ</th>
+                            <th class="p-4 border-r border-slate-300">วันที่ยืม</th>
+                            <th class="p-4 border-r border-slate-300">กำหนดคืน</th>
+                            <th class="p-4 border-r border-slate-300">สถานะ</th>
+                            <th class="p-4 text-center">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="borrowTableBody" class="divide-y-2 divide-slate-200 text-sm font-medium">
+                        <!-- Content via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Form -->
+    <div id="borrowModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border-4 border-slate-300 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-5 pb-3 border-b-2 border-slate-200">
+                <h3 class="text-xl font-extrabold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-file-pen text-blue-600"></i> บันทึกการยืมอุปกรณ์
+                </h3>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 border border-slate-300 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="borrowForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">ชื่อผู้ยืม <span class="text-red-500">*</span></label>
+                    <input type="text" id="borrowerName" required placeholder="ระบุชื่อ-นามสกุล ผู้ขอยืม" class="w-full p-3 bg-slate-50 border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none font-medium">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">แผนกของผู้ยืม <span class="text-red-500">*</span></label>
+                    <select id="department" required class="w-full p-3 bg-slate-50 border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none font-bold text-slate-800">
+                        <option value="" disabled selected>-- เลือกแผนกของผู้ยืม --</option>
+                        <option value="การบัญชี">การบัญชี</option>
+                        <option value="การตลาด">การตลาด</option>
+                        <option value="การจัดการธุรกิจค้าปลีก">การจัดการธุรกิจค้าปลีก</option>
+                        <option value="การจัดการ">การจัดการ</option>
+                        <option value="การจัดการสำนักงาน">การจัดการสำนักงาน</option>
+                        <option value="คอมพิวเตอร์ธุรกิจ">คอมพิวเตอร์ธุรกิจ</option>
+                        <option value="เทคโนโลยีธุรกิจดิจิทัล">เทคโนโลยีธุรกิจดิจิทัล</option>
+                        <option value="ดิจิทัลกราฟิก">ดิจิทัลกราฟิก</option>
+                        <option value="คอมพิวเตอร์กราฟิก">คอมพิวเตอร์กราฟิก</option>
+                        <option value="วิจิตรศิลป์">วิจิตรศิลป์</option>
+                        <option value="ศิลปกรรมเซรามิก">ศิลปกรรมเซรามิก</option>
+                        <option value="เทคโนโลยีศิลปกรรม">เทคโนโลยีศิลปกรรม</option>
+                        <option value="การออกแบบ">การออกแบบ</option>
+                        <option value="แฟชั่นและสิ่งทอ">แฟชั่นและสิ่งทอ</option>
+                        <option value="เทคโนโลยีแฟชั่นและเครื่องแต่งกาย">เทคโนโลยีแฟชั่นและเครื่องแต่งกาย</option>
+                        <option value="อาหารและโภชนาการ">อาหารและโภชนาการ</option>
+                        <option value="คหกรรมศาสตร์">คหกรรมศาสตร์</option>
+                        <option value="การบริหารงานคหกรรมศาสตร์">การบริหารงานคหกรรมศาสตร์</option>
+                        <option value="การโรงแรม">การโรงแรม</option>
+                        <option value="การท่องเที่ยว">การท่องเที่ยว</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">แผนกเจ้าของอุปกรณ์ <span class="text-red-500">*</span></label>
+                    <select id="ownerDept" required class="w-full p-3 bg-blue-50 border-2 border-blue-400 rounded-xl focus:ring-2 focus:ring-blue-500 font-bold text-blue-900">
+                        <option value="แผนกเทคโนโลยีธุรกิจดิจิทัล / คอมพิวเตอร์">แผนกเทคโนโลยีธุรกิจดิจิทัล / คอมพิวเตอร์</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">ชื่ออุปกรณ์ที่ยืม <span class="text-red-500">*</span></label>
+                    <select id="deviceName" required class="w-full p-3 bg-slate-50 border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none font-bold text-slate-800">
+                        <option value="" disabled selected>-- เลือกอุปกรณ์ที่ต้องการยืม --</option>
+                        <option value="ไขควง">ไขควง</option>
+                        <option value="คีมตัดสายไฟ">คีมตัดสายไฟ</option>
+                        <option value="แม็กซ์ (เครื่องเย็บกระดาษ)">แม็กซ์ (เครื่องเย็บกระดาษ)</option>
+                        <option value="กรรไกร">กรรไกร</option>
+                        <option value="โปรเจคเตอร์ (Projector)">โปรเจคเตอร์ (Projector)</option>
+                        <option value="สายแปลงสัญญาณ (Adapter/Converter)">สายแปลงสัญญาณ (Adapter/Converter)</option>
+                        <option value="โน้ตบุ๊ก (Laptop)">โน้ตบุ๊ก (Laptop)</option>
+                        <option value="ปลั๊กพ่วง / ปลั๊กต่อสาย">ปลั๊กพ่วง / ปลั๊กต่อสาย</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">กำหนดคืน <span class="text-red-500">*</span></label>
+                    <input type="date" id="dueDate" required class="w-full p-3 bg-slate-50 border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none font-medium">
+                </div>
+
+                <div class="flex justify-end gap-3 pt-3 border-t-2 border-slate-200">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold border border-slate-300 transition">ยกเลิก</button>
+                    <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-md border-2 border-blue-700 transition">ยืนยันบันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Script -->
+    <script>
+        let borrows = JSON.parse(localStorage.getItem('equipment_borrows_tech')) || [
+            { id: 1, borrower: "คุณสมชาย ใจดี", dept: "การบัญชี", ownerDept: "แผนกเทคโนโลยีธุรกิจดิจิทัล / คอมพิวเตอร์", device: "ไขควง", borrowDate: "2026-10-20", dueDate: "2026-10-25", status: "active" },
+            { id: 2, borrower: "คุณวิชัย รักงาน", dept: "การตลาด", ownerDept: "แผนกเทคโนโลยีธุรกิจดิจิทัล / คอมพิวเตอร์", device: "คีมตัดสายไฟ", borrowDate: "2026-10-01", dueDate: "2026-10-10", status: "overdue" }
+        ];
+
+        function renderTable(dataToRender = borrows) {
+            const tbody = document.getElementById('borrowTableBody');
+            tbody.innerHTML = '';
+
+            let activeCount = 0;
+            let overdueCount = 0;
+            let returnedCount = 0;
+
+            const today = new Date().toISOString().split('T')[0];
+
+            if (dataToRender.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="p-8 text-center text-slate-500 bg-slate-50">
+                            <i class="fa-solid fa-box-open text-3xl mb-2 text-slate-400 block"></i>
+                            ไม่พบข้อมูลรายการยืมอุปกรณ์
+                        </td>
+                    </tr>`;
+            }
+
+            dataToRender.forEach(item => {
+                if(item.status === 'active' && item.dueDate < today) {
+                    item.status = 'overdue';
+                }
+
+                if(item.status === 'active') activeCount++;
+                else if(item.status === 'overdue') overdueCount++;
+                else if(item.status === 'returned') returnedCount++;
+
+                let statusBadge = '';
+                if(item.status === 'active') statusBadge = `<span class="bg-blue-100 text-blue-800 border border-blue-300 px-3 py-1 rounded-full text-xs font-extrabold flex items-center justify-center gap-1 w-fit"><i class="fa-solid fa-spinner animate-spin"></i> กำลังยืม</span>`;
+                else if(item.status === 'overdue') statusBadge = `<span class="bg-red-100 text-red-800 border border-red-300 px-3 py-1 rounded-full text-xs font-extrabold flex items-center justify-center gap-1 w-fit"><i class="fa-solid fa-circle-exclamation"></i> เลยกำหนด</span>`;
+                else statusBadge = `<span class="bg-green-100 text-green-800 border border-green-300 px-3 py-1 rounded-full text-xs font-extrabold flex items-center justify-center gap-1 w-fit"><i class="fa-solid fa-check"></i> คืนแล้ว</span>`;
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-blue-50/60 transition bg-white";
+                row.innerHTML = `
+                    <td class="p-4 border-r border-slate-200">
+                        <div class="font-bold text-slate-900">${item.borrower}</div>
+                        <div class="text-xs font-semibold text-slate-500"><i class="fa-solid fa-building"></i> แผนก${item.dept}</div>
+                    </td>
+                    <td class="p-4 border-r border-slate-200 font-bold text-slate-800">${item.device}</td>
+                    <td class="p-4 border-r border-slate-200 text-xs font-bold text-blue-700 bg-blue-50/50">${item.ownerDept}</td>
+                    <td class="p-4 border-r border-slate-200 text-slate-600 font-semibold">${item.borrowDate}</td>
+                    <td class="p-4 border-r border-slate-200 text-slate-600 font-semibold">${item.dueDate}</td>
+                    <td class="p-4 border-r border-slate-200">${statusBadge}</td>
+                    <td class="p-4 text-center">
+                        ${item.status !== 'returned' ? 
+                            `<button onclick="returnItem(${item.id})" class="bg-green-600 hover:bg-green-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold border border-green-800 shadow-md transition flex items-center gap-1 mx-auto">
+                                <i class="fa-solid fa-rotate-left"></i> กดคืนของ
+                            </button>` : 
+                            `<span class="text-slate-400 text-xs font-bold flex items-center justify-center gap-1"><i class="fa-solid fa-check-double text-green-600"></i> เสร็จสิ้น</span>`}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('statActive').innerText = activeCount;
+            document.getElementById('statOverdue').innerText = overdueCount;
+            document.getElementById('statReturned').innerText = returnedCount;
+
+            localStorage.setItem('equipment_borrows_tech', JSON.stringify(borrows));
+        }
+
+        function openModal() { document.getElementById('borrowModal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('borrowModal').classList.add('hidden'); }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const newItem = {
+                id: Date.now(),
+                borrower: document.getElementById('borrowerName').value,
+                dept: document.getElementById('department').value,
+                ownerDept: document.getElementById('ownerDept').value,
+                device: document.getElementById('deviceName').value,
+                borrowDate: new Date().toISOString().split('T')[0],
+                dueDate: document.getElementById('dueDate').value,
+                status: 'active'
+            };
+
+            borrows.unshift(newItem);
+            renderTable();
+            closeModal();
+            document.getElementById('borrowForm').reset();
+        }
+
+        function returnItem(id) {
+            const item = borrows.find(i => i.id === id);
+            if(item) {
+                item.status = 'returned';
+                renderTable();
+            }
+        }
+
+        function filterTable() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+
+            const filtered = borrows.filter(item => {
+                const matchKeyword = item.borrower.toLowerCase().includes(keyword) || 
+                                     item.device.toLowerCase().includes(keyword) || 
+                                     item.dept.toLowerCase().includes(keyword);
+                const matchStatus = status === 'all' || item.status === status;
+                return matchKeyword && matchStatus;
+            });
+
+            renderTable(filtered);
+        }
+
+        renderTable();
+    </script>
+</body>
+</html>
