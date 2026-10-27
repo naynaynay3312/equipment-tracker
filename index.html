@@ -24,7 +24,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                 </svg>
-                <span>1. ทำรายการยืมใหม่</span>
+                <span>ทำรายการยืมใหม่</span>
             </button>
         </div>
 
@@ -63,29 +63,51 @@
 
     <!-- Modal ฟอร์มยืมอุปกรณ์ -->
     <div id="borrowModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
-            <h2 class="text-lg font-bold text-slate-900 mb-4">บันทึกการยืมอุปกรณ์</h2>
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-slate-900">บันทึกการยืมอุปกรณ์</h2>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+            </div>
+            
             <form id="borrowForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">ชื่อผู้ยืม <span class="text-red-500">*</span></label>
                     <input type="text" id="borrowerName" required placeholder="ระบุชื่อ-นามสกุล ผู้ขอยืม" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
                 </div>
+
+                <!-- ช่องเลือกหรือกรอกแผนกของผู้ยืมแบบละเอียดยอดฮิต -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">แผนกของผู้ยืม <span class="text-red-500">*</span></label>
-                    <input type="text" id="department" required placeholder="เช่น ปวช.3 เทคโนโลยีธุรกิจดิจิทัล" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                    <select id="department" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 mb-2" onchange="checkCustomDept(this)">
+                        <option value="">-- เลือกแผนก / ระดับชั้น --</option>
+                        <option value="ปวช.1 เทคโนโลยีธุรกิจดิจิทัล">ปวช.1 เทคโนโลยีธุรกิจดิจิทัล</option>
+                        <option value="ปวช.2 เทคโนโลยีธุรกิจดิจิทัล">ปวช.2 เทคโนโลยีธุรกิจดิจิทัล</option>
+                        <option value="ปวช.3 เทคโนโลยีธุรกิจดิจิทัล">ปวช.3 เทคโนโลยีธุรกิจดิจิทัล</option>
+                        <option value="ปวช.1 คอมพิวเตอร์ธุรกิจ">ปวช.1 คอมพิวเตอร์ธุรกิจ</option>
+                        <option value="ปวช.2 คอมพิวเตอร์ธุรกิจ">ปวช.2 คอมพิวเตอร์ธุรกิจ</option>
+                        <option value="ปวช.3 คอมพิวเตอร์ธุรกิจ">ปวช.3 คอมพิวเตอร์ธุรกิจ</option>
+                        <option value="ปวส.1 เทคโนโลยีธุรกิจดิจิทัล">ปวส.1 เทคโนโลยีธุรกิจดิจิทัล</option>
+                        <option value="ปวส.2 เทคโนโลยีธุรกิจดิจิทัล">ปวส.2 เทคโนโลยีธุรกิจดิจิทัล</option>
+                        <option value="other">-- ระบุอื่นๆ --</option>
+                    </select>
+                    <input type="text" id="customDepartment" placeholder="พิมพ์ระบุแผนกของคุณ..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 hidden">
                 </div>
+
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">สังกัดแผนกของอุปกรณ์ <span class="text-red-500">*</span></label>
-                    <input type="text" id="ownerDept" required placeholder="เช่น แผนกคอมพิวเตอร์" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                    <input type="text" id="ownerDept" required placeholder="เช่น แผนกเทคโนโลยีธุรกิจดิจิทัล" value="แผนกเทคโนโลยีธุรกิจดิจิทัล" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
                 </div>
+
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">ชื่ออุปกรณ์ / รหัสครุภัณฑ์ <span class="text-red-500">*</span></label>
-                    <input type="text" id="deviceName" required placeholder="เช่น โน้ตบุ๊กกลาง #01" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                    <input type="text" id="deviceName" required placeholder="เช่น โน้ตบุ๊กกลาง #01, Projector" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
                 </div>
+
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">กำหนดคืน <span class="text-red-500">*</span></label>
                     <input type="date" id="dueDate" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
                 </div>
+
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="closeModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-xl font-medium transition text-sm">ยกเลิก</button>
                     <button type="submit" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition text-sm shadow-sm">บันทึกการยืม</button>
@@ -158,16 +180,31 @@
             }).join('');
         }
 
+        function checkCustomDept(select) {
+            const customInput = document.getElementById('customDepartment');
+            if (select.value === 'other') {
+                customInput.classList.remove('hidden');
+                customInput.required = true;
+            } else {
+                customInput.classList.add('hidden');
+                customInput.required = false;
+                customInput.value = '';
+            }
+        }
+
         async function handleFormSubmit(e) {
             e.preventDefault();
             const submitBtn = e.target.querySelector('button[type="submit"]');
             submitBtn.innerText = "กำลังบันทึก...";
             submitBtn.disabled = true;
 
+            const deptSelect = document.getElementById('department').value;
+            const finalDept = deptSelect === 'other' ? document.getElementById('customDepartment').value : deptSelect;
+
             const newItem = {
                 id: Date.now().toString(),
                 borrower: document.getElementById('borrowerName').value,
-                dept: document.getElementById('department').value,
+                dept: finalDept,
                 ownerDept: document.getElementById('ownerDept').value,
                 device: document.getElementById('deviceName').value,
                 borrowDate: new Date().toISOString().split('T')[0],
@@ -182,6 +219,7 @@
                 });
                 closeModal();
                 document.getElementById('borrowForm').reset();
+                document.getElementById('customDepartment').classList.add('hidden');
                 await fetchBorrows();
             } catch (error) {
                 alert("เกิดข้อผิดพลาดในการบันทึก");
