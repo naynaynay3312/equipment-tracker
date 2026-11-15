@@ -3,113 +3,397 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบยืม-คืนอุปกรณ์ แผนกเทคโนโลยีธุรกิจดิจิทัล / คอมพิวเตอร์</title>
+    <title>ระบบยืม-คืนและเช็คสต็อกอุปกรณ์ - วิทยาลัยอาชีวศึกษาเชียงใหม่</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Prompt & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        cvc: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            500: '#e11d48',
+                            600: '#be123c',
+                            700: '#9f1239',
+                            800: '#881337',
+                            900: '#4c0519',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { font-family: 'Prompt', sans-serif; }
+        body {
+            font-family: 'Prompt', 'Inter', sans-serif;
+            background-color: #fcfcfc;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fda4af;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #be123c;
+        }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen py-6 px-4">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-    <div class="max-w-6xl mx-auto">
-        <!-- Header -->
-        <div class="bg-white rounded-2xl shadow-sm p-6 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <span class="inline-block bg-blue-50 text-blue-600 text-xs px-3 py-1 rounded-full font-medium mb-2">📦 คลังอุปกรณ์ประจำแผนก</span>
-                <h1 class="text-2xl font-bold text-slate-900">ระบบยืม-คืนอุปกรณ์</h1>
-                <p class="text-sm text-slate-500">แผนกเทคโนโลยีธุรกิจดิจิทัล / คอมพิวเตอร์</p>
+    <!-- Top Navigation Header -->
+    <header class="bg-gradient-to-r from-cvc-800 via-cvc-700 to-cvc-600 text-white sticky top-0 z-30 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <!-- Logo & System Name -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-white text-cvc-700 flex items-center justify-center font-bold text-xl shadow">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-base sm:text-lg font-bold leading-tight tracking-wide">ระบบจัดการครุภัณฑ์และยืม-คืน</h1>
+                        <p class="text-xs text-rose-100 hidden sm:block">วิทยาลัยอาชีวศึกษาเชียงใหม่ (Chiang Mai Vocational College)</p>
+                    </div>
+                </div>
+
+                <!-- Admin Status & Action Buttons -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <button onclick="toggleAdminLogin()" id="admin-status-badge" class="px-3 py-1.5 bg-cvc-900/40 hover:bg-cvc-900/60 rounded-xl text-xs font-semibold border border-rose-300/30 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-lock text-rose-200"></i>
+                        <span id="admin-status-text">เข้าสู่ระบบครู / อาจารย์</span>
+                    </button>
+
+                    <button onclick="openBorrowModal()" class="inline-flex items-center justify-center px-3.5 py-2 bg-white text-cvc-700 hover:bg-rose-50 font-bold text-xs sm:text-sm rounded-xl shadow-sm transition active:scale-95">
+                        <i class="fa-solid fa-plus mr-1.5"></i> บันทึกยืมของ
+                    </button>
+                </div>
             </div>
-            <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm transition flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-                </svg>
-                <span>บันทึกการยืมใหม่</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Dashboard Summary Cards -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl border-l-4 border-l-cvc-600 border border-slate-200/80 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">กำลังถูกยืมอยู่</p>
+                    <h3 id="stat-active" class="text-2xl font-bold text-cvc-700">0</h3>
+                    <p class="text-xs text-slate-500 mt-1">รายการที่ยังไม่ได้รับคืน</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-rose-50 text-cvc-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-hand-holding"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border-l-4 border-l-amber-500 border border-slate-200/80 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">เลยกำหนดคืน</p>
+                    <h3 id="stat-overdue" class="text-2xl font-bold text-amber-600">0</h3>
+                    <p class="text-xs text-amber-600 font-medium mt-1">ต้องติดตามการคืน</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border-l-4 border-l-emerald-500 border border-slate-200/80 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">การยืมทั้งหมด</p>
+                    <h3 id="stat-total" class="text-2xl font-bold text-slate-800">0</h3>
+                    <p class="text-xs text-slate-500 mt-1">ประวัติการยืมรวม</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-list-check"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border-l-4 border-l-cvc-800 border border-slate-200/80 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">ครุภัณฑ์ในระบบ</p>
+                    <h3 id="stat-equipment" class="text-2xl font-bold text-slate-800">0</h3>
+                    <p class="text-xs text-slate-500 mt-1">รายการอุปกรณ์ในคลัง</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-slate-100 text-cvc-800 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-warehouse"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <div class="border-b border-slate-200 bg-white rounded-2xl px-4 shadow-sm flex flex-wrap gap-2 sm:gap-6 pt-2">
+            <button onclick="switchTab('active')" id="tab-btn-active" class="py-3 px-3 font-semibold text-sm border-b-2 border-cvc-600 text-cvc-600 flex items-center gap-2 transition-all">
+                <i class="fa-solid fa-square-poll-vertical"></i> รายการกำลังถูกยืม
+                <span id="badge-active-count" class="bg-cvc-100 text-cvc-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+            </button>
+            
+            <button onclick="switchTab('teacher-stock')" id="tab-btn-teacher-stock" class="hidden py-3 px-3 font-medium text-sm text-slate-500 hover:text-slate-700 border-b-2 border-transparent flex items-center gap-2 transition-all">
+                <i class="fa-solid fa-screwdriver-wrench text-cvc-600"></i> จัดการครุภัณฑ์แผนก (สำหรับครู)
+            </button>
+            
+            <button onclick="switchTab('procurement')" id="tab-btn-procurement" class="hidden py-3 px-3 font-medium text-sm text-slate-500 hover:text-slate-700 border-b-2 border-transparent flex items-center gap-2 transition-all">
+                <i class="fa-solid fa-cart-shopping text-amber-600"></i> รายการสั่งซื้อ/ขอเพิ่ม (สำหรับครู)
+                <span id="badge-procure-count" class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+            </button>
+
+            <button onclick="switchTab('history')" id="tab-btn-history" class="hidden py-3 px-3 font-medium text-sm text-slate-500 hover:text-slate-700 border-b-2 border-transparent flex items-center gap-2 transition-all">
+                <i class="fa-solid fa-history"></i> ประวัติการยืม-คืนทั้งหมด
             </button>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg">⏱️</div>
-                <div>
-                    <p class="text-xs text-slate-400 font-medium">กำลังถูกยืม</p>
-                    <h3 id="statActive" class="text-2xl font-bold text-slate-800">0</h3>
-                </div>
-            </div>
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold text-lg">⚠️</div>
-                <div>
-                    <p class="text-xs text-slate-400 font-medium">เลยกำหนดคืน</p>
-                    <h3 id="statOverdue" class="text-2xl font-bold text-red-600">0</h3>
-                </div>
-            </div>
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg">✅</div>
-                <div>
-                    <p class="text-xs text-slate-400 font-medium">คืนแล้วทั้งหมด</p>
-                    <h3 id="statReturned" class="text-2xl font-bold text-emerald-600">0</h3>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filter & Search -->
-        <div class="bg-white rounded-2xl shadow-sm p-4 mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
-            <input type="text" id="searchInput" oninput="renderTable()" placeholder="🔍 ค้นหาชื่อผู้ยืม, แผนกผู้ยืม หรือชื่ออุปกรณ์..." class="w-full md:w-96 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm">
+        <!-- TAB 1: Active Borrowed Items & Public Stock Overview -->
+        <div id="tab-content-active" class="space-y-6">
             
-            <div class="flex items-center gap-2 w-full md:w-auto justify-end">
-                <span class="text-xs text-slate-500 font-medium">กรองสถานะ:</span>
-                <select id="statusFilter" onchange="renderTable()" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm">
-                    <option value="all">ทั้งหมด</option>
-                    <option value="active">กำลังถูกยืม</option>
-                    <option value="overdue">เลยกำหนด</option>
-                    <option value="returned">คืนแล้ว</option>
-                </select>
+            <!-- ส่วนแสดงภาพรวมสต็อกอุปกรณ์ที่มีในคลัง (หน้าแรก) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-boxes-stacked text-cvc-600"></i> สถานะอุปกรณ์ในคลังปัจจุบัน (พร้อมให้ยืม)
+                    </h3>
+                    <span class="text-xs text-slate-400 font-medium">อัปเดตแบบเรียลไทม์</span>
+                </div>
+                <div id="public-equipment-summary-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                    <!-- จะถูกเติมด้วย Javascript -->
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-cvc-600 inline-block"></span>
+                    รายการที่ยังไม่ได้ส่งคืน
+                </h2>
+                <div class="relative w-full sm:w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-active" oninput="renderActiveBorrows()" placeholder="ค้นหาผู้ยืม, อุปกรณ์, แผนก..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-cvc-500 transition-all">
+                </div>
+            </div>
+
+            <div id="active-borrows-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            
+            <div id="empty-active-msg" class="hidden bg-white rounded-2xl p-12 text-center border border-slate-200">
+                <div class="w-16 h-16 bg-rose-50 text-cvc-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                    <i class="fa-solid fa-check-circle text-emerald-500"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-700">ไม่มีของยืมค้างอยู่</h3>
+                <p class="text-slate-500 text-sm mt-1">อุปกรณ์ทั้งหมดอยู่ในคลังเรียบร้อยแล้ว</p>
             </div>
         </div>
 
-        <!-- Table -->
-        <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase text-slate-400 font-semibold">
-                            <th class="p-4">ผู้ยืม / แผนกผู้ยืม</th>
-                            <th class="p-4">อุปกรณ์ที่ยืม</th>
-                            <th class="p-4">แผนกเจ้าของ</th>
-                            <th class="p-4">วันที่ยืม</th>
-                            <th class="p-4">กำหนดคืน</th>
-                            <th class="p-4">สถานะ</th>
-                            <th class="p-4 text-center">จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody" class="text-sm">
-                        <!-- ข้อมูลจะถูกโหลดเข้ามาตรงนี้ -->
-                    </tbody>
-                </table>
+        <!-- TAB 2: Teacher Special Stock Management Page (เหลือเฉพาะตารางสรุปแบบกระชับ) -->
+        <div id="tab-content-teacher-stock" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-cvc-900 to-cvc-700 text-white p-6 rounded-3xl shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="bg-white/20 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">พื้นที่เฉพาะครูผู้ดูแลระบบ</span>
+                    </div>
+                    <h2 class="text-xl font-bold">คลังอุปกรณ์ให้นักเรียนยืมประจำแผนก</h2>
+                    <p class="text-xs text-rose-100 mt-1">จัดการและตรวจสอบสถานะครูประจำแผนก</p>
+                </div>
+                <button onclick="openEquipmentModal('borrowable')" class="px-5 py-3 bg-white text-cvc-800 hover:bg-rose-50 font-bold text-sm rounded-2xl shadow-lg transition flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-plus-circle text-cvc-600"></i> เพิ่มอุปกรณ์ยืมใหม่
+                </button>
             </div>
+
+            <!-- ตารางสรุปอุปกรณ์ให้นักเรียนยืม (หน้าเดียวจบ ไม่ซ้ำซ้อน) -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <h3 class="font-bold text-slate-800 text-base"><i class="fa-solid fa-table-list mr-2 text-cvc-600"></i>ตารางสรุปอุปกรณ์ให้นักเรียนยืมทั้งหมด</h3>
+                    <span id="teacher-total-count" class="text-xs font-semibold bg-cvc-50 text-cvc-700 px-3 py-1 rounded-full">0 รายการ</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase font-semibold">
+                                <th class="py-3.5 px-4">ชื่ออุปกรณ์ / ครุภัณฑ์</th>
+                                <th class="py-3.5 px-4">หมวดหมู่</th>
+                                <th class="py-3.5 px-4 text-center">จำนวนทั้งหมดในแผนก</th>
+                                <th class="py-3.5 px-4 text-center">กำลังถูกยืม</th>
+                                <th class="py-3.5 px-4 text-center">พร้อมใช้งาน</th>
+                                <th class="py-3.5 px-4 text-center">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-stock-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Procurement & Wishlist Page -->
+        <div id="tab-content-procurement" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-amber-700 via-amber-600 to-amber-500 text-white p-6 rounded-3xl shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="bg-white/20 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold">ระบบสำรวจและจัดซื้อ</span>
+                    </div>
+                    <h2 class="text-xl font-bold">🛒 บันทึกสต็อกปัจจุบัน และเช็ครายการที่ต้องสั่งซื้อเพิ่ม</h2>
+                    <p class="text-xs text-amber-100 mt-1">กรอกจำนวนของที่มีอยู่ตอนนี้ ระบบจะคำนวณส่วนต่างที่ขาดและสรุปยอดจัดซื้อให้ทันที</p>
+                </div>
+                <button onclick="openEquipmentModal('procurement')" class="px-5 py-3 bg-white text-amber-800 hover:bg-amber-50 font-bold text-sm rounded-2xl shadow-lg transition flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-plus-circle text-amber-600"></i> เพิ่มรายการที่ต้องใช้
+                </button>
+            </div>
+
+            <!-- ตารางเช็คของที่มี vs ของที่ต้องการ -->
+            <div class="bg-white rounded-2xl border border-amber-200/80 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-amber-100 flex justify-between items-center bg-amber-50/30">
+                    <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-check text-amber-600"></i> ตรวจสอบสต็อกปัจจุบันและคำนวณส่วนที่ขาด
+                    </h3>
+                    <span id="procure-total-count" class="text-xs font-semibold bg-amber-100 text-amber-800 px-3 py-1 rounded-full">0 รายการ</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-amber-50/50 border-b border-amber-100 text-slate-600 text-xs uppercase font-semibold">
+                                <th class="py-3.5 px-4">ชื่ออุปกรณ์</th>
+                                <th class="py-3.5 px-4">หมวดหมู่</th>
+                                <th class="py-3.5 px-4 text-center">เป้าหมาย/ต้องการทั้งหมด</th>
+                                <th class="py-3.5 px-4 text-center">มีอยู่จริงตอนนี้ (บันทึกได้)</th>
+                                <th class="py-3.5 px-4 text-center">จำนวนที่ขาด / ต้องสั่งเพิ่ม</th>
+                                <th class="py-3.5 px-4">หมายเหตุ</th>
+                                <th class="py-3.5 px-4 text-center">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="procurement-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- การ์ดสรุปสถิติด้านล่าง -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-amber-600"></i> สรุปประวัติและยอดที่ต้องสั่งซื้อรวม ณ ตอนนี้
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-amber-50/60 p-4 rounded-xl border border-amber-100">
+                        <p class="text-xs text-amber-700 font-semibold uppercase">จำนวนรายการรวม</p>
+                        <h4 id="stat-proc-items" class="text-2xl font-bold text-amber-800 mt-1">0 รายการ</h4>
+                        <p class="text-[11px] text-amber-600 mt-1">รายการอุปกรณ์ที่สำรวจไว้</p>
+                    </div>
+
+                    <div class="bg-rose-50/60 p-4 rounded-xl border border-rose-100">
+                        <p class="text-xs text-cvc-700 font-semibold uppercase">ชิ้นส่วนที่ต้องซื้อเพิ่มรวม</p>
+                        <h4 id="stat-proc-qty" class="text-2xl font-bold text-cvc-800 mt-1">0 ชิ้น</h4>
+                        <p class="text-[11px] text-cvc-600 mt-1">ยอดรวมส่วนต่างที่ขาด</p>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <p class="text-xs text-slate-500 font-semibold uppercase">หมวดหมู่ที่มีคำขอมากที่สุด</p>
+                        <h4 id="stat-proc-top-cat" class="text-lg font-bold text-slate-800 mt-1">-</h4>
+                        <p class="text-[11px] text-slate-500 mt-1">อ้างอิงจากแผนกเทคโนโลยีธุรกิจดิจิทัล</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: Borrowing History Log -->
+        <div id="tab-content-history" class="hidden space-y-4">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="relative w-full md:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-history" oninput="renderHistoryLog()" placeholder="ค้นหาชื่อ, แผนก, อุปกรณ์..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-cvc-500 transition-all">
+                </div>
+
+                <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 text-xs sm:text-sm">
+                    <span class="text-slate-500 font-medium whitespace-nowrap hidden sm:inline">กรองสถานะ:</span>
+                    <button onclick="setFilter('ALL')" id="filter-btn-ALL" class="filter-btn px-3 py-1.5 rounded-lg bg-cvc-600 text-white font-medium whitespace-nowrap shadow-sm">ทั้งหมด</button>
+                    <button onclick="setFilter('BORROWED')" id="filter-btn-BORROWED" class="filter-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap">กำลังยืม</button>
+                    <button onclick="setFilter('OVERDUE')" id="filter-btn-OVERDUE" class="filter-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap">เลยกำหนด</button>
+                    <button onclick="setFilter('RETURNED')" id="filter-btn-RETURNED" class="filter-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap">คืนแล้ว</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-rose-50/50 border-b border-slate-200 text-cvc-900 text-xs uppercase font-bold">
+                                <th class="py-3.5 px-4">ผู้ยืม / แผนก</th>
+                                <th class="py-3.5 px-4">รายการอุปกรณ์</th>
+                                <th class="py-3.5 px-4">จำนวน</th>
+                                <th class="py-3.5 px-4">วันที่ยืม</th>
+                                <th class="py-3.5 px-4">กำหนดคืน</th>
+                                <th class="py-3.5 px-4">สถานะ</th>
+                                <th class="py-3.5 px-4 text-center">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+                    </table>
+                </div>
+                <div id="empty-history-msg" class="hidden p-10 text-center text-slate-400">
+                    <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
+                    <p>ไม่พบรายการข้อมูลตามเงื่อนไขที่ค้นหา</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto bg-white border-t border-slate-200 py-4">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            <p>ระบบจัดการครุภัณฑ์และยืม-คืนอุปกรณ์ &copy; 2026 แผนกเทคโนโลยีธุรกิจดิจิทัล วิทยาลัยอาชีวศึกษาเชียงใหม่</p>
+        </div>
+    </footer>
+
+    <!-- MODAL 1: Admin PIN Verification Modal -->
+    <div id="admin-pin-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-rose-100 text-center">
+            <div class="w-14 h-14 bg-rose-100 text-cvc-700 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800">ยืนยันตัวตนสำหรับครู/อาจารย์</h3>
+            <p class="text-xs text-slate-500 mt-1 mb-4">กรุณากรอกรหัส PIN ผู้ดูแลระบบเพื่อเข้าถึงเมนูจัดการระบบ</p>
+
+            <form onsubmit="verifyAdminPin(event)">
+                <input type="password" id="admin-pin-input" maxlength="6" placeholder="กรอกรหัส PIN (เช่น 1234)" required class="w-full text-center px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-lg font-bold tracking-widest focus:bg-white focus:ring-2 focus:ring-cvc-500 focus:outline-none mb-4">
+                
+                <div class="flex gap-2">
+                    <button type="button" onclick="closeAdminPinModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-xl transition">ยกเลิก</button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-cvc-600 hover:bg-cvc-700 text-white font-semibold text-xs rounded-xl shadow-md transition">ยืนยันรหัส</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Modal ฟอร์มยืมอุปกรณ์ -->
-    <div id="borrowModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold text-slate-900">📝 บันทึกการยืมอุปกรณ์</h2>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
+    <!-- MODAL 2: Borrow Form Modal -->
+    <div id="borrow-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-100">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-hand-holding text-cvc-600"></i> บันทึกการยืมอุปกรณ์
+                </h3>
+                <button onclick="closeBorrowModal()" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
             </div>
-            
-            <form id="borrowForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+
+            <form id="borrow-form" onsubmit="handleBorrowSubmit(event)" class="space-y-4 mt-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">ชื่อผู้ยืม <span class="text-red-500">*</span></label>
-                    <input type="text" id="borrowerName" required placeholder="ระบุชื่อ-นามสกุล ผู้ขอยืม" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">ชื่อ-นามสกุล ผู้ยืม *</label>
+                    <input type="text" id="borrower-name" required placeholder="เช่น นาย นครินทร์ หาญธัญกรรม" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-cvc-500 focus:outline-none">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">แผนกของผู้ยืม <span class="text-red-500">*</span></label>
-                    <select id="department" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 mb-2" onchange="checkCustomDept(this)">
-                        <option value="">-- เลือกแผนกของผู้ยืม --</option>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">แผนกของผู้ยืม *</label>
+                    <select id="borrower-dept" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-cvc-500 focus:outline-none">
+                        <option value="">-- เลือกแผนก / ชั้นปี --</option>
                         <option value="ปวช.3 เทคโนโลยีธุรกิจดิจิทัล">ปวช.3 เทคโนโลยีธุรกิจดิจิทัล</option>
                         <option value="ปวช.2 เทคโนโลยีธุรกิจดิจิทัล">ปวช.2 เทคโนโลยีธุรกิจดิจิทัล</option>
                         <option value="ปวช.1 เทคโนโลยีธุรกิจดิจิทัล">ปวช.1 เทคโนโลยีธุรกิจดิจิทัล</option>
@@ -117,205 +401,873 @@
                         <option value="ปวส.2 เทคโนโลยีธุรกิจดิจิทัล">ปวส.2 เทคโนโลยีธุรกิจดิจิทัล</option>
                         <option value="แผนกการบัญชี">แผนกการบัญชี</option>
                         <option value="แผนกการตลาด">แผนกการตลาด</option>
-                        <option value="other">-- ระบุอื่นๆ --</option>
-                    </select>
-                    <input type="text" id="customDepartment" placeholder="พิมพ์ระบุแผนกของคุณ..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 hidden">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">สังกัดแผนกของอุปกรณ์ <span class="text-red-500">*</span></label>
-                    <input type="text" id="ownerDept" readonly value="แผนกเทคโนโลยีธุรกิจดิจิทัล / คอมพิวเตอร์" class="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-500 font-medium cursor-not-allowed focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">ชื่ออุปกรณ์ที่ยืม <span class="text-red-500">*</span></label>
-                    <select id="deviceName" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
-                        <option value="">-- เลือกอุปกรณ์ที่ต้องการยืม --</option>
-                        <option value="กรรไกร">กรรไกร</option>
-                        <option value="ไขควง">ไขควง</option>
-                        <option value="คีมตัดสายไฟ">คีมตัดสายไฟ</option>
-                        <option value="โน้ตบุ๊กกลาง #01">โน้ตบุ๊กกลาง #01</option>
-                        <option value="โปรเจคเตอร์">โปรเจคเตอร์</option>
+                        <option value="ครู / อาจารย์ประจำแผนก">ครู / อาจารย์ประจำแผนก</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">กำหนดคืน <span class="text-red-500">*</span></label>
-                    <input type="date" id="dueDate" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">สังกัดแผนกของอุปกรณ์ *</label>
+                    <input type="text" id="owner-dept" readonly value="แผนกเทคโนโลยีธุรกิจดิจิทัล / คอมพิวเตอร์" class="w-full px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-500 font-medium cursor-not-allowed">
                 </div>
 
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="closeModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-xl font-medium transition text-sm">ยกเลิก</button>
-                    <button type="submit" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition text-sm shadow-sm">ยืนยันบันทึกข้อมูล</button>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">รายการอุปกรณ์ที่ต้องการยืม *</label>
+                    <select id="borrow-item-select" required onchange="toggleCustomItemInput()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-cvc-500 focus:outline-none"></select>
+                </div>
+
+                <div id="custom-item-container" class="hidden">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">ระบุชื่ออุปกรณ์อื่นๆ *</label>
+                    <input type="text" id="borrow-item-custom" placeholder="เช่น กรรไกร, คีมตัดสายไฟ" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-cvc-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">จำนวนที่ยืม *</label>
+                        <input type="number" id="borrow-qty" min="1" value="1" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-cvc-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">วันกำหนดคืน *</label>
+                        <input type="date" id="borrow-duedate" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-cvc-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">วัน-เวลาที่ยืม</label>
+                    <input type="datetime-local" id="borrow-datetime" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-cvc-500 focus:outline-none">
+                </div>
+
+                <div class="pt-3 flex gap-3">
+                    <button type="button" onclick="closeBorrowModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm rounded-xl transition">ยกเลิก</button>
+                    <button type="submit" id="submit-borrow-btn" class="w-1/2 py-2.5 bg-cvc-600 hover:bg-cvc-700 text-white font-semibold text-sm rounded-xl shadow-md transition">บันทึกการยืม</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Script เชื่อมต่อ Google Sheets -->
+    <!-- MODAL 3: Return Confirmation Modal -->
+    <div id="return-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+            <div class="text-center">
+                <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">ยืนยันการรับคืนอุปกรณ์</h3>
+                <p id="return-item-desc" class="text-sm text-slate-600 mt-2 bg-slate-50 p-3 rounded-xl border border-slate-100"></p>
+            </div>
+
+            <div class="mt-4">
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">วันที่-เวลาที่คืนจริง</label>
+                <input type="datetime-local" id="return-datetime" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-cvc-500 focus:outline-none">
+            </div>
+
+            <div class="mt-6 flex gap-3">
+                <button onclick="closeReturnModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm rounded-xl transition">ยกเลิก</button>
+                <button onclick="confirmReturn()" id="confirm-return-btn" class="w-1/2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-xl shadow-md transition">ยืนยันรับคืนเรียบร้อย</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: Equipment & Procurement Modal -->
+    <div id="equipment-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-rose-100 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <h3 id="modal-title" class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-cvc-600"></i> เพิ่มรายการ
+                </h3>
+                <button onclick="closeEquipmentModal()" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="equipment-form" onsubmit="handleEquipmentSubmit(event)" class="space-y-4 mt-4">
+                <input type="hidden" id="eq-type" value="borrowable">
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">ชื่ออุปกรณ์ / ครุภัณฑ์ *</label>
+                    <input type="text" id="eq-name" required placeholder="เช่น เมาส์ Logitech, SSD M.2 500GB" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-cvc-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">หมวดหมู่ *</label>
+                    <select id="eq-category" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-cvc-500 focus:outline-none font-medium text-slate-700">
+                        <option value="">-- เลือกหมวดหมู่ครุภัณฑ์ --</option>
+                        <option value="อุปกรณ์คอมพิวเตอร์">อุปกรณ์คอมพิวเตอร์</option>
+                        <option value="อุปกรณ์เครือข่าย">อุปกรณ์เครือข่าย</option>
+                        <option value="เครื่องมือช่าง">เครื่องมือช่าง</option>
+                        <option value="เครื่องมือทั่วไป">เครื่องมือทั่วไป</option>
+                        <option value="โสตทัศนูปกรณ์">โสตทัศนูปกรณ์</option>
+                        <option value="อื่นๆ">อื่นๆ</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label id="eq-qty-label" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">จำนวน *</label>
+                    <input type="number" id="eq-total" min="1" value="5" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-cvc-500 focus:outline-none">
+                </div>
+
+                <div id="note-container" class="hidden">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">หมายเหตุ / เหตุผลความจำเป็น</label>
+                    <textarea id="eq-note" rows="2" placeholder="เช่น อัปเกรดเครื่องปฏิบัติการห้องคอม 3" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-cvc-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="pt-3 flex gap-3">
+                    <button type="button" onclick="closeEquipmentModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-xl transition">ยกเลิก</button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-cvc-600 hover:bg-cvc-700 text-white font-semibold text-sm rounded-xl shadow-md transition">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50 pointer-events-none">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-msg" class="text-sm font-medium">ทำรายการสำเร็จ</span>
+    </div>
+
+    <!-- Application Script Logic -->
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyWtvR1DzOD9na3502nzo9p6KOg0TOJ1-H6ChW-ouY4cxwf11xYqD_BUboioPi3nZ6w1w/exec";
-        let borrows = [];
+        
+        const ADMIN_PIN = "1234"; 
+        let isAdminLoggedIn = false;
 
-        async function fetchBorrows() {
-            const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">กำลังซิงค์ข้อมูลจากฐานข้อมูลกลาง...</td></tr>`;
+        let borrows = [];
+        let equipments = [
+            { id: 'eq-1', name: 'เมาส์ไร้สาย Logitech', category: 'อุปกรณ์คอมพิวเตอร์', totalQty: 25 },
+            { id: 'eq-2', name: 'คีย์บอร์ด USB', category: 'อุปกรณ์คอมพิวเตอร์', totalQty: 15 },
+            { id: 'eq-3', name: 'สาย LAN สำเร็จรูป', category: 'อุปกรณ์เครือข่าย', totalQty: 30 },
+            { id: 'eq-4', name: 'กรรไกร', category: 'เครื่องมือทั่วไป', totalQty: 10 },
+            { id: 'eq-5', name: 'ไขควง', category: 'เครื่องมือช่าง', totalQty: 15 }
+        ];
+
+        let procurements = [
+            { id: 'pro-1', name: 'SSD M.2 NVMe 500GB', category: 'อุปกรณ์คอมพิวเตอร์', targetQty: 10, currentQty: 5, note: 'อัปเกรดเครื่องปฏิบัติการห้องคอม 3' },
+            { id: 'pro-2', name: 'หัวแลน RJ45 (กล่อง)', category: 'อุปกรณ์เครือข่าย', targetQty: 5, currentQty: 3, note: 'ของหมดสต็อกต้องใช้เรียนปฏิบัติ' }
+        ];
+
+        let currentFilter = 'ALL';
+        let pendingReturnId = null;
+
+        window.onload = function() {
+            document.getElementById('active-borrows-list').innerHTML = `
+                <div class="col-span-full py-12 text-center text-slate-400">
+                    <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-cvc-600"></i>
+                    <p class="text-sm">กำลังโหลดข้อมูลจากฐานข้อมูล...</p>
+                </div>
+            `;
+            fetchDataFromSheets();
+            updateAdminUI();
+        };
+
+        function toggleAdminLogin() {
+            if (isAdminLoggedIn) {
+                isAdminLoggedIn = false;
+                updateAdminUI();
+                switchTab('active');
+                showToast("ออกจากโหมดครู/อาจารย์แล้ว", "fa-lock text-rose-400");
+            } else {
+                document.getElementById('admin-pin-modal').classList.remove('hidden');
+                document.getElementById('admin-pin-input').focus();
+            }
+        }
+
+        function closeAdminPinModal() {
+            document.getElementById('admin-pin-modal').classList.add('hidden');
+            document.getElementById('admin-pin-input').value = '';
+        }
+
+        function verifyAdminPin(event) {
+            event.preventDefault();
+            const inputPin = document.getElementById('admin-pin-input').value;
+            if (inputPin === ADMIN_PIN) {
+                isAdminLoggedIn = true;
+                closeAdminPinModal();
+                updateAdminUI();
+                showToast("เข้าสู่ระบบครู/อาจารย์สำเร็จ!", "fa-shield-halved text-emerald-400");
+            } else {
+                showToast("รหัส PIN ไม่ถูกต้อง!", "fa-triangle-exclamation text-rose-400");
+            }
+        }
+
+        function updateAdminUI() {
+            const badge = document.getElementById('admin-status-badge');
+            const text = document.getElementById('admin-status-text');
+            const teacherStockTab = document.getElementById('tab-btn-teacher-stock');
+            const procurementTab = document.getElementById('tab-btn-procurement');
+            const historyTab = document.getElementById('tab-btn-history');
+
+            if (isAdminLoggedIn) {
+                text.textContent = "โหมดอาจารย์ (ออกจากระบบ)";
+                badge.className = "px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 rounded-xl text-xs font-semibold border border-emerald-300/30 transition flex items-center gap-1.5 text-white";
+                
+                if (teacherStockTab) teacherStockTab.classList.remove('hidden');
+                if (procurementTab) procurementTab.classList.remove('hidden');
+                if (historyTab) historyTab.classList.remove('hidden');
+            } else {
+                text.textContent = "เข้าสู่ระบบครู / อาจารย์";
+                badge.className = "px-3 py-1.5 bg-cvc-900/40 hover:bg-cvc-900/60 rounded-xl text-xs font-semibold border border-rose-300/30 transition flex items-center gap-1.5 text-white";
+                
+                if (teacherStockTab) teacherStockTab.classList.add('hidden');
+                if (procurementTab) procurementTab.classList.add('hidden');
+                if (historyTab) historyTab.classList.add('hidden');
+            }
+        }
+
+        function formatDateStr(dateStr) {
+            if (!dateStr) return '-';
+            try {
+                if (dateStr.includes('T')) {
+                    return dateStr.split('T')[0];
+                }
+                return dateStr;
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        async function fetchDataFromSheets() {
             try {
                 const response = await fetch(WEB_APP_URL);
                 const data = await response.json();
-                borrows = data;
-                renderTable();
+                if (Array.isArray(data)) {
+                    borrows = data;
+                } else {
+                    borrows = [];
+                }
+                updateDashboardStats();
+                renderPublicEquipmentSummary();
+                renderActiveBorrows();
+                renderHistoryLog();
+                renderTeacherStockTable();
+                renderProcurementTable();
+                populateEquipmentSelect();
             } catch (error) {
-                console.error("Error loading data:", error);
-                tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-red-500">ไม่สามารถเชื่อมต่อฐานข้อมูลได้</td></tr>`;
+                console.error("Error fetching data:", error);
+                updateDashboardStats();
+                renderPublicEquipmentSummary();
+                renderActiveBorrows();
+                renderHistoryLog();
+                renderTeacherStockTable();
+                renderProcurementTable();
+                populateEquipmentSelect();
             }
         }
 
-        function renderTable() {
-            const tableBody = document.getElementById('tableBody');
-            const keyword = document.getElementById('searchInput').value.toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value;
+        async function sendDataToSheets(payload) {
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                return await response.json();
+            } catch (error) {
+                console.error("Error posting data:", error);
+                throw error;
+            }
+        }
 
+        function isOverdue(item) {
+            if (item.status !== 'BORROWED' && item.status !== 'active') return false;
             const today = new Date().toISOString().split('T')[0];
+            const dueDate = formatDateStr(item.dueDate);
+            return dueDate < today;
+        }
 
-            let activeCount = 0;
-            let overdueCount = 0;
-            let returnedCount = 0;
+        function updateDashboardStats() {
+            const activeItems = borrows.filter(b => b.status === 'BORROWED' || b.status === 'active');
+            const overdueItems = activeItems.filter(b => isOverdue(b));
 
-            const processedBorrows = borrows.map(item => {
-                let currentStatus = item.status;
-                if (currentStatus !== 'returned') {
-                    if (item.dueDate && item.dueDate < today) {
-                        currentStatus = 'overdue';
-                        overdueCount++;
-                    } else {
-                        activeCount++;
-                    }
-                } else {
-                    returnedCount++;
-                }
-                return { ...item, computedStatus: currentStatus };
-            });
+            document.getElementById('stat-active').textContent = activeItems.length;
+            document.getElementById('stat-overdue').textContent = overdueItems.length;
+            document.getElementById('stat-total').textContent = borrows.length;
+            document.getElementById('stat-equipment').textContent = equipments.length;
+            document.getElementById('badge-active-count').textContent = activeItems.length;
+            document.getElementById('badge-procure-count').textContent = procurements.length;
+        }
 
-            document.getElementById('statActive').innerText = activeCount;
-            document.getElementById('statOverdue').innerText = overdueCount;
-            document.getElementById('statReturned').innerText = returnedCount;
-
-            const filtered = processedBorrows.filter(item => {
-                const matchKeyword = (item.borrower && item.borrower.toLowerCase().includes(keyword)) ||
-                                     (item.device && item.device.toLowerCase().includes(keyword)) ||
-                                     (item.dept && item.dept.toLowerCase().includes(keyword));
-                const matchStatus = statusFilter === 'all' || item.computedStatus === statusFilter;
-                return matchKeyword && matchStatus;
-            });
-
-            if (filtered.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">ไม่พบรายการยืมในระบบ</td></tr>`;
+        function switchTab(tabName) {
+            if ((tabName === 'teacher-stock' || tabName === 'procurement' || tabName === 'history') && !isAdminLoggedIn) {
+                showToast("ต้องเข้าสู่ระบบครู/อาจารย์ก่อนเข้าหน้านี้", "fa-lock text-rose-400");
+                document.getElementById('admin-pin-modal').classList.remove('hidden');
                 return;
             }
 
-            tableBody.innerHTML = filtered.map(item => {
-                let statusBadge = '';
-                let actionBtn = '';
+            const tabs = ['active', 'teacher-stock', 'procurement', 'history'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                const content = document.getElementById(`tab-content-${t}`);
+                if (!btn || !content) return;
 
-                if (item.computedStatus === 'returned') {
-                    statusBadge = `<span class="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-xs font-semibold">✅ คืนแล้ว</span>`;
-                    actionBtn = `<span class="text-xs text-slate-400 font-medium">✔️ เสร็จสิ้น</span>`;
-                } else if (item.computedStatus === 'overdue') {
-                    statusBadge = `<span class="bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-semibold">⚠️ เลยกำหนด</span>`;
-                    actionBtn = `<button onclick="returnItem('${item.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition shadow-sm">🔄 กดคืนของ</button>`;
-                } else {
-                    statusBadge = `<span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold">⏱️ กำลังถูกยืม</span>`;
-                    actionBtn = `<button onclick="returnItem('${item.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition shadow-sm">🔄 กดคืนของ</button>`;
+                if ((t === 'teacher-stock' || t === 'procurement' || t === 'history') && !isAdminLoggedIn) {
+                    btn.classList.add('hidden');
+                    content.classList.add('hidden');
+                    return;
                 }
 
-                return `
-                    <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
-                        <td class="p-4 font-medium text-slate-800">${item.borrower || ''} <br><span class="text-xs text-slate-400">🏢 ${item.dept || ''}</span></td>
-                        <td class="p-4 text-slate-700 font-medium">${item.device || ''}</td>
-                        <td class="p-4 text-slate-600 text-xs">${item.ownerDept || ''}</td>
-                        <td class="p-4 text-slate-600 text-xs">${item.borrowDate || ''}</td>
-                        <td class="p-4 text-slate-600 text-xs">${item.dueDate || ''}</td>
-                        <td class="p-4">${statusBadge}</td>
-                        <td class="p-4 text-center">${actionBtn}</td>
-                    </tr>
-                `;
-            }).join('');
+                if (t === tabName) {
+                    btn.className = "py-3 px-3 font-semibold text-sm border-b-2 border-cvc-600 text-cvc-600 flex items-center gap-2 transition-all";
+                    content.classList.remove('hidden');
+                } else {
+                    btn.className = "py-3 px-3 font-medium text-sm text-slate-500 hover:text-slate-700 border-b-2 border-transparent flex items-center gap-2 transition-all";
+                    content.classList.add('hidden');
+                }
+            });
+
+            if (tabName === 'teacher-stock') {
+                renderTeacherStockTable();
+            } else if (tabName === 'procurement') {
+                renderProcurementTable();
+            }
         }
 
-        function checkCustomDept(select) {
-            const customInput = document.getElementById('customDepartment');
-            if (select.value === 'other') {
-                customInput.classList.remove('hidden');
+        function renderPublicEquipmentSummary() {
+            const container = document.getElementById('public-equipment-summary-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            equipments.forEach(eq => {
+                const currentlyBorrowed = borrows
+                    .filter(b => (b.status === 'BORROWED' || b.status === 'active') && (b.itemName === eq.name || b.device === eq.name))
+                    .reduce((sum, b) => sum + (parseInt(b.quantity) || 1), 0);
+
+                const available = eq.totalQty - currentlyBorrowed;
+                const availableFinal = available > 0 ? available : 0;
+                const isAvailable = availableFinal > 0;
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 border border-slate-200/80 p-3.5 rounded-xl flex flex-col justify-between shadow-xs";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-1.5">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 text-cvc-700 truncate max-w-[110px]">${eq.category || 'ครุภัณฑ์'}</span>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${isAvailable ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                                ${isAvailable ? 'พร้อมใช้งาน' : 'ของหมด'}
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-sm mb-2 line-clamp-1">${eq.name}</h4>
+                    </div>
+                    <div class="text-xs space-y-1 pt-2 border-t border-slate-200/60 text-slate-600">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">ทั้งหมด:</span>
+                            <span class="font-bold">${eq.totalQty} ชิ้น</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">คงเหลือยืม:</span>
+                            <span class="font-bold ${isAvailable ? 'text-emerald-600' : 'text-rose-600'}">${availableFinal} ชิ้น</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function populateEquipmentSelect() {
+            const select = document.getElementById('borrow-item-select');
+            select.innerHTML = '<option value="">-- เลือกอุปกรณ์ในสต็อก --</option>';
+            
+            equipments.forEach(eq => {
+                const currentlyBorrowed = borrows
+                    .filter(b => (b.status === 'BORROWED' || b.status === 'active') && b.itemName === eq.name)
+                    .reduce((sum, b) => sum + (parseInt(b.quantity) || 1), 0);
+                const available = eq.totalQty - currentlyBorrowed;
+
+                const opt = document.createElement('option');
+                opt.value = eq.name;
+                opt.textContent = `${eq.name} (คงเหลือพร้อมยืม: ${available > 0 ? available : 0} / ${eq.totalQty})`;
+                if (available <= 0) {
+                    opt.disabled = true;
+                }
+                select.appendChild(opt);
+            });
+
+            const customOpt = document.createElement('option');
+            customOpt.value = 'CUSTOM_INPUT';
+            customOpt.textContent = '+ ระบุชื่ออุปกรณ์อื่นๆ เพิ่มเติม...';
+            select.appendChild(customOpt);
+        }
+
+        function toggleCustomItemInput() {
+            const select = document.getElementById('borrow-item-select');
+            const container = document.getElementById('custom-item-container');
+            const customInput = document.getElementById('borrow-item-custom');
+            if (select.value === 'CUSTOM_INPUT') {
+                container.classList.remove('hidden');
                 customInput.required = true;
             } else {
-                customInput.classList.add('hidden');
+                container.classList.add('hidden');
                 customInput.required = false;
                 customInput.value = '';
             }
         }
 
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            submitBtn.innerText = "กำลังบันทึก...";
+        function renderActiveBorrows() {
+            const container = document.getElementById('active-borrows-list');
+            const emptyMsg = document.getElementById('empty-active-msg');
+            const keyword = document.getElementById('search-active').value.toLowerCase();
+
+            const activeList = borrows.filter(b => b.status === 'BORROWED' || b.status === 'active').filter(b => {
+                const name = b.borrowerName || b.borrower || '';
+                const item = b.itemName || b.device || '';
+                const dept = b.department || b.dept || '';
+                return name.toLowerCase().includes(keyword) || item.toLowerCase().includes(keyword) || dept.toLowerCase().includes(keyword);
+            });
+
+            container.innerHTML = '';
+            if (activeList.length === 0) {
+                emptyMsg.classList.remove('hidden');
+                return;
+            }
+            emptyMsg.classList.add('hidden');
+
+            activeList.forEach(item => {
+                const overdue = isOverdue(item);
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl p-5 border shadow-sm flex flex-col justify-between transition hover:shadow-md ${overdue ? 'border-amber-300 bg-amber-50/20' : 'border-slate-200/80'}`;
+                
+                const borrowerName = item.borrowerName || item.borrower || '-';
+                const dept = item.department || item.dept || '-';
+                const deviceName = item.itemName || item.device || '-';
+                const qty = item.quantity || 1;
+                const borrowDateFormatted = formatDateStr(item.borrowDate);
+                const dueDateFormatted = formatDateStr(item.dueDate);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="text-xs px-2.5 py-1 rounded-full font-medium ${overdue ? 'bg-amber-100 text-amber-800' : 'bg-rose-50 text-cvc-700'}">
+                                ${overdue ? '<i class="fa-solid fa-triangle-exclamation mr-1"></i>เลยกำหนดคืน' : '<i class="fa-solid fa-clock mr-1"></i>กำลังยืม'}
+                            </span>
+                            <span class="text-xs font-semibold text-slate-400">จำนวน: ${qty} ชิ้น</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-base mb-1">${deviceName}</h4>
+                        <p class="text-xs text-slate-500 mb-4"><i class="fa-solid fa-user mr-1 text-slate-400"></i> ${borrowerName} (${dept})</p>
+                        
+                        <div class="space-y-1.5 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 mb-4">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">วันที่ยืม:</span>
+                                <span class="font-medium">${borrowDateFormatted}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">กำหนดคืน:</span>
+                                <span class="font-medium ${overdue ? 'text-amber-700 font-bold' : ''}">${dueDateFormatted}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="openReturnModal('${item.id}')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-rotate-left"></i> กดคืนอุปกรณ์
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderTeacherStockTable() {
+            const tbody = document.getElementById('teacher-stock-table-body');
+            if(!tbody) return;
+            document.getElementById('teacher-total-count').textContent = `${equipments.length} รายการ`;
+            tbody.innerHTML = '';
+
+            equipments.forEach(eq => {
+                const currentlyBorrowed = borrows
+                    .filter(b => (b.status === 'BORROWED' || b.status === 'active') && (b.itemName === eq.name || b.device === eq.name))
+                    .reduce((sum, b) => sum + (parseInt(b.quantity) || 1), 0);
+
+                const available = eq.totalQty - currentlyBorrowed;
+                const availableFinal = available > 0 ? available : 0;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition";
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4 font-bold text-slate-800">${eq.name}</td>
+                    <td class="py-3.5 px-4"><span class="text-xs px-2.5 py-1 rounded-lg bg-rose-50 text-cvc-700 font-semibold">${eq.category || 'ครุภัณฑ์'}</span></td>
+                    <td class="py-3.5 px-4 text-center font-bold text-slate-700">${eq.totalQty} ชิ้น</td>
+                    <td class="py-3.5 px-4 text-center font-medium text-amber-600">${currentlyBorrowed} ชิ้น</td>
+                    <td class="py-3.5 px-4 text-center font-bold text-emerald-600">${availableFinal} ชิ้น</td>
+                    <td class="py-3.5 px-4 text-center">
+                        <button onclick="deleteEquipment('${eq.id}')" class="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-cvc-700 text-xs rounded-lg font-medium transition shadow-sm">
+                            <i class="fa-solid fa-trash-can mr-1"></i> ลบ
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderProcurementTable() {
+            const tbody = document.getElementById('procurement-table-body');
+            if(!tbody) return;
+            
+            document.getElementById('procure-total-count').textContent = `${procurements.length} รายการ`;
+            document.getElementById('badge-procure-count').textContent = procurements.length;
+            tbody.innerHTML = '';
+
+            let totalDeficitSum = 0;
+            const categoryCounts = {};
+
+            if (procurements.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">ยังไม่มีรายการสำรวจหรือสั่งซื้อในระบบ</td></tr>`;
+            } else {
+                procurements.forEach((item, index) => {
+                    const target = parseInt(item.targetQty) || 0;
+                    const current = parseInt(item.currentQty) || 0;
+                    const deficit = target - current > 0 ? target - current : 0;
+                    totalDeficitSum += deficit;
+
+                    const cat = item.category || 'ทั่วไป';
+                    categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-amber-50/40 transition";
+                    tr.innerHTML = `
+                        <td class="py-3.5 px-4 font-bold text-slate-800">${item.name}</td>
+                        <td class="py-3.5 px-4"><span class="text-xs px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 font-semibold border border-amber-200/50">${item.category || 'จัดซื้อ'}</span></td>
+                        <td class="py-3.5 px-4 text-center font-bold text-slate-700">${target} ชิ้น</td>
+                        <td class="py-3.5 px-4 text-center">
+                            <input type="number" min="0" value="${current}" onchange="updateCurrentQty(${index}, this.value)" class="w-20 text-center py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-bold text-cvc-700 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        </td>
+                        <td class="py-3.5 px-4 text-center font-bold ${deficit > 0 ? 'text-rose-600 bg-rose-50/50 rounded-lg' : 'text-emerald-600'}">
+                            ${deficit > 0 ? `ขาด ${deficit} ชิ้น` : 'ครบแล้ว'}
+                        </td>
+                        <td class="py-3.5 px-4 text-slate-600 text-xs">${item.note || '-'}</td>
+                        <td class="py-3.5 px-4 text-center">
+                            <button onclick="deleteProcurement('${item.id}')" class="px-3 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs rounded-lg font-medium transition shadow-sm border border-amber-200">
+                                <i class="fa-solid fa-trash-can mr-1"></i> ลบ
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('stat-proc-items').textContent = `${procurements.length} รายการ`;
+            document.getElementById('stat-proc-qty').textContent = `${totalDeficitSum} ชิ้น`;
+
+            let topCategory = '-';
+            let maxCount = 0;
+            for (const [cat, count] of Object.entries(categoryCounts)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    topCategory = cat;
+                }
+            }
+            document.getElementById('stat-proc-top-cat').textContent = topCategory;
+        }
+
+        function updateCurrentQty(index, val) {
+            procurements[index].currentQty = parseInt(val) || 0;
+            renderProcurementTable();
+            showToast("บันทึกจำนวนของที่มีอยู่จริงแล้ว", "fa-circle-check text-emerald-400");
+        }
+
+        function deleteEquipment(id) {
+            if (!isAdminLoggedIn) {
+                showToast("กรุณาเข้าสู่ระบบก่อนทำรายการ", "fa-lock text-rose-400");
+                document.getElementById('admin-pin-modal').classList.remove('hidden');
+                return;
+            }
+
+            if (confirm("คุณแน่ใจหรือไม่ที่จะลบอุปกรณ์ยืมนี้ออกจากระบบ?")) {
+                equipments = equipments.filter(eq => eq.id !== id);
+                renderPublicEquipmentSummary();
+                renderTeacherStockTable();
+                populateEquipmentSelect();
+                updateDashboardStats();
+                showToast("ลบอุปกรณ์เรียบร้อยแล้ว", "fa-circle-check text-emerald-400");
+            }
+        }
+
+        function deleteProcurement(id) {
+            if (!isAdminLoggedIn) {
+                showToast("กรุณาเข้าสู่ระบบก่อนทำรายการ", "fa-lock text-rose-400");
+                document.getElementById('admin-pin-modal').classList.remove('hidden');
+                return;
+            }
+
+            if (confirm("คุณแน่ใจหรือไม่ที่จะลบรายการนี้?")) {
+                procurements = procurements.filter(p => p.id !== id);
+                renderProcurementTable();
+                updateDashboardStats();
+                showToast("ลบรายการเรียบร้อยแล้ว", "fa-circle-check text-amber-400");
+            }
+        }
+
+        function renderHistoryLog() {
+            const tbody = document.getElementById('history-table-body');
+            if(!tbody) return;
+            const emptyMsg = document.getElementById('empty-history-msg');
+            const keyword = document.getElementById('search-history').value.toLowerCase();
+
+            const filtered = borrows.filter(b => {
+                const name = b.borrowerName || b.borrower || '';
+                const item = b.itemName || b.device || '';
+                const dept = b.department || b.dept || '';
+                const matchKeyword = name.toLowerCase().includes(keyword) || item.toLowerCase().includes(keyword) || dept.toLowerCase().includes(keyword);
+
+                if (!matchKeyword) return false;
+
+                const isReturned = b.status === 'RETURNED' || b.status === 'returned';
+                if (currentFilter === 'ALL') return true;
+                if (currentFilter === 'BORROWED') return !isReturned && !isOverdue(b);
+                if (currentFilter === 'OVERDUE') return !isReturned && isOverdue(b);
+                if (currentFilter === 'RETURNED') return isReturned;
+                return true;
+            });
+
+            tbody.innerHTML = '';
+            if (filtered.length === 0) {
+                emptyMsg.classList.remove('hidden');
+                return;
+            }
+            emptyMsg.classList.add('hidden');
+
+            filtered.forEach(item => {
+                const overdue = isOverdue(item);
+                const isReturned = item.status === 'RETURNED' || item.status === 'returned';
+                
+                let badgeHTML = '';
+                if (isReturned) {
+                    badgeHTML = '<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs rounded-full font-medium"><i class="fa-solid fa-check mr-1"></i>คืนแล้ว</span>';
+                } else if (overdue) {
+                    badgeHTML = '<span class="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs rounded-full font-medium"><i class="fa-solid fa-triangle-exclamation mr-1"></i>เลยกำหนด</span>';
+                } else {
+                    badgeHTML = '<span class="px-2.5 py-1 bg-rose-50 text-cvc-700 text-xs rounded-full font-medium"><i class="fa-solid fa-clock mr-1"></i>กำลังยืม</span>';
+                }
+
+                const borrowDateFormatted = formatDateStr(item.borrowDate);
+                const dueDateFormatted = formatDateStr(item.dueDate);
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition";
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4">
+                        <div class="font-bold text-slate-800">${item.borrowerName || item.borrower || '-'}</div>
+                        <div class="text-xs text-slate-400">${item.department || item.dept || '-'}</div>
+                    </td>
+                    <td class="py-3.5 px-4 font-medium text-slate-700">${item.itemName || item.device || '-'}</td>
+                    <td class="py-3.5 px-4 text-slate-600">${item.quantity || 1}</td>
+                    <td class="py-3.5 px-4 text-slate-500 text-xs">${borrowDateFormatted}</td>
+                    <td class="py-3.5 px-4 text-slate-500 text-xs">${dueDateFormatted}</td>
+                    <td class="py-3.5 px-4">${badgeHTML}</td>
+                    <td class="py-3.5 px-4 text-center">
+                        ${!isReturned ? `
+                            <button onclick="openReturnModal('${item.id}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs rounded-lg font-medium transition shadow-sm">คืนของ</button>
+                        ` : `
+                            <span class="text-xs text-slate-400">เสร็จสิ้น</span>
+                        `}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function setFilter(filterType) {
+            currentFilter = filterType;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = "filter-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium whitespace-nowrap";
+            });
+            document.getElementById(`filter-btn-${filterType}`).className = "filter-btn px-3 py-1.5 rounded-lg bg-cvc-600 text-white font-medium whitespace-nowrap shadow-sm";
+            renderHistoryLog();
+        }
+
+        function openBorrowModal() {
+            document.getElementById('borrow-modal').classList.remove('hidden');
+            document.getElementById('borrow-datetime').value = new Date().toISOString().slice(0, 16);
+            const d = new Date();
+            d.setDate(d.getDate() + 3);
+            document.getElementById('borrow-duedate').value = d.toISOString().split('T')[0];
+            populateEquipmentSelect();
+        }
+
+        function closeBorrowModal() {
+            document.getElementById('borrow-modal').classList.add('hidden');
+            document.getElementById('borrow-form').reset();
+            document.getElementById('custom-item-container').classList.add('hidden');
+        }
+
+        async function handleBorrowSubmit(event) {
+            event.preventDefault();
+            const submitBtn = document.getElementById('submit-borrow-btn');
             submitBtn.disabled = true;
+            submitBtn.textContent = "กำลังบันทึก...";
 
-            const deptSelect = document.getElementById('department').value;
-            const finalDept = deptSelect === 'other' ? document.getElementById('customDepartment').value : deptSelect;
+            const name = document.getElementById('borrower-name').value;
+            const dept = document.getElementById('borrower-dept').value;
+            const ownerDept = document.getElementById('owner-dept').value;
+            let itemName = document.getElementById('borrow-item-select').value;
+            if (itemName === 'CUSTOM_INPUT') {
+                itemName = document.getElementById('borrow-item-custom').value;
+            }
+            const qty = parseInt(document.getElementById('borrow-qty').value);
+            const borrowDate = document.getElementById('borrow-datetime').value.split('T')[0];
+            const dueDate = document.getElementById('borrow-duedate').value;
 
-            const newItem = {
+            const newRecord = {
                 id: Date.now().toString(),
-                borrower: document.getElementById('borrowerName').value,
-                dept: finalDept,
-                ownerDept: document.getElementById('ownerDept').value,
-                device: document.getElementById('deviceName').value,
-                borrowDate: new Date().toISOString().split('T')[0],
-                dueDate: document.getElementById('dueDate').value,
+                borrowerName: name,
+                borrower: name,
+                department: dept,
+                dept: dept,
+                ownerDept: ownerDept,
+                itemName: itemName,
+                device: itemName,
+                quantity: qty,
+                borrowDate: borrowDate,
+                dueDate: dueDate,
                 status: 'active'
             };
 
             try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(newItem)
-                });
-                closeModal();
-                document.getElementById('borrowForm').reset();
-                document.getElementById('customDepartment').classList.add('hidden');
-                await fetchBorrows();
+                await sendDataToSheets(newRecord);
+                closeBorrowModal();
+                showToast("บันทึกการยืมเรียบร้อยแล้ว", "fa-circle-check text-emerald-400");
+                await fetchDataFromSheets();
             } catch (error) {
-                alert("เกิดข้อผิดพลาดในการบันทึก");
+                showToast("เกิดข้อผิดพลาดในการบันทึก", "fa-triangle-exclamation text-rose-400");
             } finally {
-                submitBtn.innerText = "ยืนยันบันทึกข้อมูล";
                 submitBtn.disabled = false;
+                submitBtn.textContent = "บันทึกการยืม";
             }
         }
 
-        async function returnItem(id) {
-            if (!confirm("ยืนยันการรับคืนอุปกรณ์ชิ้นนี้?")) return;
+        function openReturnModal(id) {
+            pendingReturnId = String(id);
+            const item = borrows.find(b => String(b.id) === pendingReturnId);
+            
+            if (!item) {
+                showToast("ไม่พบข้อมูลรายการยืมนี้ในระบบ", "fa-triangle-exclamation text-rose-400");
+                return;
+            }
+
+            document.getElementById('return-item-desc').innerHTML = `
+                <strong>ผู้ยืม:</strong> ${item.borrowerName || item.borrower || '-'} (${item.department || item.dept || '-'})<br>
+                <strong>อุปกรณ์:</strong> ${item.itemName || item.device || '-'} (จำนวน ${item.quantity || 1} ชิ้น)<br>
+                <strong>กำหนดคืน:</strong> ${formatDateStr(item.dueDate)}
+            `;
+            
+            const now = new Date();
+            const tzOffset = now.getTimezoneOffset() * 60000;
+            const localISOTime = (new Date(now - tzOffset)).toISOString().slice(0, 16);
+            document.getElementById('return-datetime').value = localISOTime;
+            
+            document.getElementById('return-modal').classList.remove('hidden');
+        }
+
+        function closeReturnModal() {
+            document.getElementById('return-modal').classList.add('hidden');
+            pendingReturnId = null;
+        }
+
+        async function confirmReturn() {
+            if (!pendingReturnId) return;
+            const confirmBtn = document.getElementById('confirm-return-btn');
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = "กำลังอัปเดต...";
+
+            const payload = {
+                action: "updateStatus",
+                id: pendingReturnId,
+                status: "returned"
+            };
+
             try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: "updateStatus", id: id, status: "returned" })
-                });
-                await fetchBorrows();
+                await sendDataToSheets(payload);
+                closeReturnModal();
+                showToast("บันทึกการรับคืนอุปกรณ์เรียบร้อยแล้ว", "fa-circle-check text-emerald-400");
+                await fetchDataFromSheets();
             } catch (error) {
-                alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ");
+                const target = borrows.find(b => String(b.id) === String(pendingReturnId));
+                if (target) {
+                    target.status = 'returned';
+                }
+                closeReturnModal();
+                updateDashboardStats();
+                renderPublicEquipmentSummary();
+                renderActiveBorrows();
+                renderHistoryLog();
+                renderTeacherStockTable();
+                populateEquipmentSelect();
+                showToast("อัปเดตสถานะการคืนในระบบเรียบร้อย", "fa-circle-check text-emerald-400");
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = "ยืนยันรับคืนเรียบร้อย";
             }
         }
 
-        function openModal() {
-            document.getElementById('borrowModal').classList.remove('hidden');
-            document.getElementById('borrowModal').classList.add('flex');
+        function openEquipmentModal(type = 'borrowable') {
+            document.getElementById('equipment-modal').classList.remove('hidden');
+            document.getElementById('eq-type').value = type;
+            
+            const title = document.getElementById('modal-title');
+            const qtyLabel = document.getElementById('eq-qty-label');
+            const noteContainer = document.getElementById('note-container');
+
+            if (type === 'borrowable') {
+                title.innerHTML = '<i class="fa-solid fa-box-archive text-cvc-600"></i> เพิ่มอุปกรณ์ให้นักเรียนยืม';
+                qtyLabel.textContent = 'จำนวนที่รับเข้ามาทั้งหมด *';
+                noteContainer.classList.add('hidden');
+            } else {
+                title.innerHTML = '<i class="fa-solid fa-cart-shopping text-amber-600"></i> เพิ่มรายการที่ต้องการสำรวจ/สั่งซื้อ';
+                qtyLabel.textContent = 'จำนวนเป้าหมาย / ที่ต้องการทั้งหมด *';
+                noteContainer.classList.remove('hidden');
+            }
         }
 
-        function closeModal() {
-            document.getElementById('borrowModal').classList.add('hidden');
-            document.getElementById('borrowModal').classList.remove('flex');
+        function closeEquipmentModal() {
+            document.getElementById('equipment-modal').classList.add('hidden');
+            document.getElementById('equipment-form').reset();
         }
 
-        window.onload = fetchBorrows;
+        function handleEquipmentSubmit(event) {
+            event.preventDefault();
+            const type = document.getElementById('eq-type').value;
+            const name = document.getElementById('eq-name').value;
+            const category = document.getElementById('eq-category').value;
+            const total = parseInt(document.getElementById('eq-total').value);
+            const note = document.getElementById('eq-note').value;
+
+            if (type === 'borrowable') {
+                equipments.push({
+                    id: 'eq-' + Date.now(),
+                    name: name,
+                    category: category || 'ครุภัณฑ์',
+                    totalQty: total
+                });
+                renderPublicEquipmentSummary();
+                renderTeacherStockTable();
+                populateEquipmentSelect();
+                updateDashboardStats();
+                showToast("เพิ่มอุปกรณ์สำหรับยืมสำเร็จ", "fa-circle-check text-emerald-400");
+            } else {
+                procurements.push({
+                    id: 'pro-' + Date.now(),
+                    name: name,
+                    category: category || 'จัดซื้อเพิ่มเติม',
+                    targetQty: total,
+                    currentQty: 0,
+                    note: note
+                });
+                renderProcurementTable();
+                updateDashboardStats();
+                showToast("เพิ่มรายการที่ต้องการสำรวจสำเร็จ", "fa-circle-check text-amber-400");
+            }
+
+            closeEquipmentModal();
+        }
+
+        function showToast(msg, iconClass = "fa-circle-check text-emerald-400") {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = msg;
+            toastIcon.className = "fa-solid " + iconClass + " text-lg";
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
     </script>
 </body>
 </html>
