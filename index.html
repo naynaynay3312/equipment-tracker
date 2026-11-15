@@ -72,12 +72,12 @@
                 <div class="flex items-center space-x-2">
                     <button onclick="toggleAdminLogin()" id="admin-status-badge" class="px-2.5 sm:px-3 py-1.5 bg-cvc-900/40 hover:bg-cvc-900/60 rounded-xl text-[11px] sm:text-xs font-semibold border border-rose-300/30 transition flex items-center gap-1.5 shrink-0">
                         <i class="fa-solid fa-lock text-rose-200"></i>
-                        <span id="admin-status-text" class="hidden xs:inline">เข้าสู่ระบบครู</span>
-                        <span class="inline xs:hidden">ครู</span>
+                        <span id="admin-status-text" class="hidden sm:inline">เข้าสู่ระบบครู</span>
+                        <span class="inline sm:hidden">ครู</span>
                     </button>
 
                     <button onclick="openBorrowModal()" class="inline-flex items-center justify-center px-3 sm:px-3.5 py-2 bg-white text-cvc-700 hover:bg-rose-50 font-bold text-xs sm:text-sm rounded-xl shadow-sm transition active:scale-95 shrink-0">
-                        <i class="fa-solid fa-plus mr-1"></i> <span class="hidden xs:inline">บันทึกยืมของ</span><span class="inline xs:hidden">ยืม</span>
+                        <i class="fa-solid fa-plus mr-1"></i> <span class="hidden sm:inline">บันทึกยืมของ</span><span class="inline sm:hidden">ยืม</span>
                     </button>
                 </div>
             </div>
@@ -164,7 +164,7 @@
                     </h3>
                     <span class="text-[11px] text-slate-400 font-medium">Real-time</span>
                 </div>
-                <div id="public-equipment-summary-grid" class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                <div id="public-equipment-summary-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                     <!-- Javascript injected -->
                 </div>
             </div>
@@ -342,7 +342,7 @@
 
     <!-- MODAL 1: Admin PIN Verification Modal -->
     <div id="admin-pin-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-rose-100 text-center animate-in fade-in zoom-in duration-200">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-rose-100 text-center">
             <div class="w-14 h-14 bg-rose-100 text-cvc-700 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
                 <i class="fa-solid fa-user-shield"></i>
             </div>
@@ -646,14 +646,18 @@
         }
 
         function isOverdue(item) {
-            if (item.status !== 'BORROWED' && item.status !== 'active') return false;
+            const status = (item.status || '').toLowerCase();
+            if (status !== 'borrowed' && status !== 'active') return false;
             const today = new Date().toISOString().split('T')[0];
             const dueDate = formatDateStr(item.dueDate);
             return dueDate < today;
         }
 
         function updateDashboardStats() {
-            const activeItems = borrows.filter(b => b.status === 'BORROWED' || b.status === 'active');
+            const activeItems = borrows.filter(b => {
+                const s = (b.status || '').toLowerCase();
+                return s === 'borrowed' || s === 'active';
+            });
             const overdueItems = activeItems.filter(b => isOverdue(b));
 
             document.getElementById('stat-active').textContent = activeItems.length;
@@ -703,7 +707,11 @@
 
             equipments.forEach(eq => {
                 const currentlyBorrowed = borrows
-                    .filter(b => (b.status === 'BORROWED' || b.status === 'active') && (b.itemName === eq.name || b.device === eq.name))
+                    .filter(b => {
+                        const s = (b.status || '').toLowerCase();
+                        const itemName = b.device || b.itemName || '';
+                        return (s === 'borrowed' || s === 'active') && itemName === eq.name;
+                    })
                     .reduce((sum, b) => sum + (parseInt(b.quantity) || 1), 0);
 
                 const available = eq.totalQty - currentlyBorrowed;
@@ -743,7 +751,11 @@
             
             equipments.forEach(eq => {
                 const currentlyBorrowed = borrows
-                    .filter(b => (b.status === 'BORROWED' || b.status === 'active') && b.itemName === eq.name)
+                    .filter(b => {
+                        const s = (b.status || '').toLowerCase();
+                        const itemName = b.device || b.itemName || '';
+                        return (s === 'borrowed' || s === 'active') && itemName === eq.name;
+                    })
                     .reduce((sum, b) => sum + (parseInt(b.quantity) || 1), 0);
                 const available = eq.totalQty - currentlyBorrowed;
 
@@ -774,15 +786,19 @@
             }
         }
 
+        // จับคู่ตัวแปรให้ตรงกับ Google Apps Script (borrower, dept, device)
         function renderActiveBorrows() {
             const container = document.getElementById('active-borrows-list');
             const emptyMsg = document.getElementById('empty-active-msg');
             const keyword = document.getElementById('search-active').value.toLowerCase();
 
-            const activeList = borrows.filter(b => b.status === 'BORROWED' || b.status === 'active').filter(b => {
-                const name = b.borrowerName || b.borrower || '';
-                const item = b.itemName || b.device || '';
-                const dept = b.department || b.dept || '';
+            const activeList = borrows.filter(b => {
+                const status = (b.status || '').toLowerCase();
+                return status === 'borrowed' || status === 'active';
+            }).filter(b => {
+                const name = b.borrower || b.borrowerName || '-';
+                const item = b.device || b.itemName || '-';
+                const dept = b.dept || b.department || '-';
                 return name.toLowerCase().includes(keyword) || item.toLowerCase().includes(keyword) || dept.toLowerCase().includes(keyword);
             });
 
@@ -798,9 +814,9 @@
                 const card = document.createElement('div');
                 card.className = `bg-white rounded-2xl p-4 sm:p-5 border shadow-sm flex flex-col justify-between transition hover:shadow-md ${overdue ? 'border-amber-300 bg-amber-50/20' : 'border-slate-200/80'}`;
                 
-                const borrowerName = item.borrowerName || item.borrower || '-';
-                const dept = item.department || item.dept || '-';
-                const deviceName = item.itemName || item.device || '-';
+                const borrowerName = item.borrower || item.borrowerName || 'ไม่ระบุชื่อ';
+                const dept = item.dept || item.department || 'ไม่ระบุแผนก';
+                const deviceName = item.device || item.itemName || 'ไม่ระบุอุปกรณ์';
                 const qty = item.quantity || 1;
                 const borrowDateFormatted = formatDateStr(item.borrowDate);
                 const dueDateFormatted = formatDateStr(item.dueDate);
@@ -844,7 +860,11 @@
 
             equipments.forEach(eq => {
                 const currentlyBorrowed = borrows
-                    .filter(b => (b.status === 'BORROWED' || b.status === 'active') && (b.itemName === eq.name || b.device === eq.name))
+                    .filter(b => {
+                        const s = (b.status || '').toLowerCase();
+                        const itemName = b.device || b.itemName || '';
+                        return (s === 'borrowed' || s === 'active') && itemName === eq.name;
+                    })
                     .reduce((sum, b) => sum + (parseInt(b.quantity) || 1), 0);
 
                 const available = eq.totalQty - currentlyBorrowed;
@@ -960,14 +980,15 @@
             const keyword = document.getElementById('search-history').value.toLowerCase();
 
             const filtered = borrows.filter(b => {
-                const name = b.borrowerName || b.borrower || '';
-                const item = b.itemName || b.device || '';
-                const dept = b.department || b.dept || '';
+                const name = b.borrower || b.borrowerName || '';
+                const item = b.device || b.itemName || '';
+                const dept = b.dept || b.department || '';
                 const matchKeyword = name.toLowerCase().includes(keyword) || item.toLowerCase().includes(keyword) || dept.toLowerCase().includes(keyword);
 
                 if (!matchKeyword) return false;
 
-                const isReturned = b.status === 'RETURNED' || b.status === 'returned';
+                const status = (b.status || '').toLowerCase();
+                const isReturned = status === 'returned';
                 if (currentFilter === 'ALL') return true;
                 if (currentFilter === 'BORROWED') return !isReturned && !isOverdue(b);
                 if (currentFilter === 'OVERDUE') return !isReturned && isOverdue(b);
@@ -984,7 +1005,7 @@
 
             filtered.forEach(item => {
                 const overdue = isOverdue(item);
-                const isReturned = item.status === 'RETURNED' || item.status === 'returned';
+                const isReturned = (item.status || '').toLowerCase() === 'returned';
                 
                 let badgeHTML = '';
                 if (isReturned) badgeHTML = '<span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[11px] rounded-full font-medium">คืนแล้ว</span>';
@@ -995,10 +1016,10 @@
                 tr.className = "hover:bg-slate-50/80 transition";
                 tr.innerHTML = `
                     <td class="py-3 px-4">
-                        <div class="font-bold text-slate-800">${item.borrowerName || item.borrower || '-'}</div>
-                        <div class="text-[11px] text-slate-400">${item.department || item.dept || '-'}</div>
+                        <div class="font-bold text-slate-800">${item.borrower || item.borrowerName || '-'}</div>
+                        <div class="text-[11px] text-slate-400">${item.dept || item.department || '-'}</div>
                     </td>
-                    <td class="py-3 px-4 font-medium text-slate-700">${item.itemName || item.device || '-'}</td>
+                    <td class="py-3 px-4 font-medium text-slate-700">${item.device || item.itemName || '-'}</td>
                     <td class="py-3 px-4 text-slate-600">${item.quantity || 1}</td>
                     <td class="py-3 px-4 text-slate-500 text-xs">${formatDateStr(item.borrowDate)}</td>
                     <td class="py-3 px-4 text-slate-500 text-xs">${formatDateStr(item.dueDate)}</td>
@@ -1037,6 +1058,7 @@
             document.getElementById('custom-item-container').classList.add('hidden');
         }
 
+        // ส่งตัวแปรให้ตรงกับ Google Apps Script (borrower, dept, ownerDept, device)
         async function handleBorrowSubmit(event) {
             event.preventDefault();
             const submitBtn = document.getElementById('submit-borrow-btn');
@@ -1048,10 +1070,10 @@
 
             const newRecord = {
                 id: Date.now().toString(),
-                borrowerName: document.getElementById('borrower-name').value,
-                department: document.getElementById('borrower-dept').value,
+                borrower: document.getElementById('borrower-name').value,
+                dept: document.getElementById('borrower-dept').value,
                 ownerDept: document.getElementById('owner-dept').value,
-                itemName: itemName,
+                device: itemName,
                 quantity: parseInt(document.getElementById('borrow-qty').value),
                 borrowDate: document.getElementById('borrow-datetime').value.split('T')[0],
                 dueDate: document.getElementById('borrow-duedate').value,
@@ -1077,8 +1099,8 @@
             if (!item) return;
 
             document.getElementById('return-item-desc').innerHTML = `
-                <strong>ผู้ยืม:</strong> ${item.borrowerName || item.borrower || '-'}<br>
-                <strong>อุปกรณ์:</strong> ${item.itemName || item.device || '-'} (จำนวน ${item.quantity || 1} ชิ้น)<br>
+                <strong>ผู้ยืม:</strong> ${item.borrower || item.borrowerName || '-'}<br>
+                <strong>อุปกรณ์:</strong> ${item.device || item.itemName || '-'} (จำนวน ${item.quantity || 1} ชิ้น)<br>
                 <strong>กำหนดคืน:</strong> ${formatDateStr(item.dueDate)}
             `;
             
